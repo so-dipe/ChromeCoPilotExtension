@@ -7,11 +7,19 @@
     "background": {
         "service_worker": "background.js"
     },
+    "host_permissions": [
+        "http://localhost:8000/*",
+        "https://chromecopilot-66au4vtdba-uc.a.run.app/*"
+    ],
     "options_page": "options.html",
     "permissions": [
-        "sidePanel"
+        "activeTab",
+        "cookies",
+        "sidePanel",
+        "storage",
+        "tabs"
     ],
     "side_panel": {
-        "default_path": "panel.html"
+        "default_path": "sidepanel.html"
     }
 }

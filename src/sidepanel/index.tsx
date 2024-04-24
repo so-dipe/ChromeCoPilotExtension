@@ -1,15 +1,22 @@
-import React from 'react'
-import {createRoot} from 'react-dom/client'
-import '../assets/tailwind.css' 
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import useLoginStatus from './hooks/useLoginStatus';
+import ProfilePage from './pages/ProfilePage';
+import WelcomePage from './pages/WelcomePage';
 
-const test = (
-    <div>
-        <h1 className="bg-green-500 text-5xl">Hello world</h1>
-    </div>
-)
+const container = document.createElement('div');
+document.body.appendChild(container);
+const root = createRoot(container);
 
-const container = document.createElement('div')
-document.body.appendChild(container)
-const root = createRoot(container)
+const App: React.FC = () => {
+    const isLoggedIn = useLoginStatus();
 
-root.render(test)
+    return (
+        <React.StrictMode>
+          {isLoggedIn ? <ProfilePage /> : <WelcomePage />}
+        </React.StrictMode>
+      );
+    };
+
+root.render(<App />);
+
