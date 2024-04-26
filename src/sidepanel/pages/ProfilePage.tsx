@@ -3,6 +3,7 @@ import { useUserData, useLoginStatus, useToken } from '../hooks/chromeStorageHoo
 import Logout from '../components/Logout';
 import NewChat from '../components/NewChat';
 import ConversationsDB from '../../db/db';
+import Conversations from '../components/Conversations'
 
 const ProfilePage: React.FC = () => {
   const user = useUserData();
@@ -30,6 +31,7 @@ const ProfilePage: React.FC = () => {
         <h2>{greeting}, {user.fullName}</h2>
       )}
       <NewChat />
+      <Conversations />
       <Logout />
     </div>
   );

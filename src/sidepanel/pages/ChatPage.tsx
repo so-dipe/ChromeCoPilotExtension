@@ -20,7 +20,7 @@ const messagePairsToList = (messages) => {
 };
 
 
-const sendMessage = async (fetchData, user, message, conversation) => {
+const sendMessage = async (fetchData, user, message, messages) => {
   const url = `${serverUrl}/api/v1/messaging/stream_response`;
   await fetchData(url, {
     method: 'POST',
@@ -30,7 +30,7 @@ const sendMessage = async (fetchData, user, message, conversation) => {
     },
     body: JSON.stringify({
       message: message,
-      history: messagePairsToList(conversation.messages),
+      history: messagePairsToList(messages),
     })
   });
   }  
@@ -42,23 +42,27 @@ const ChatPage: React.FC = () => {
   const [conversation, setConversation] = useState<any>(null);
   const [db, setDb] = useState<any>(null);
   const [message, setMessage] = useState<string>('');
-  const [botMessage, setBotMessage] = useState<string>('');
   const [stream, setStream] = useState<boolean>(false);
   const [chunk, setChunk] = useState<string>('');
-  const [previousChunk, setPreviousChunk] = useState<string>('');
+  const [messages, setMessages] = useState<any[]>([]);
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId, 1);
     const conversation = await db.getConversation(chatId);
+    console.log("chatPage", conversation);
     setConversation(conversation);
+    setMessages(conversation.messages)
     setDb(db);
   }
 
   useEffect(() => {
     if (user) {
       fetchConversation()
+      // if (conversation) {
+      //   setMessages(conversation.messages)
+      // }
     }
-  }, [user, botMessage])
+  }, [user])
 
   useEffect(() => {
     const readResponse = async () => {
@@ -75,11 +79,12 @@ const ChatPage: React.FC = () => {
             result += new TextDecoder().decode(value);
             setChunk(new TextDecoder().decode(value));
           }
-          db.appendMessagePair(chatId, {
-            "user": message,
-            "bot": result
+          db.appendMessagePair(chatId, { user: message, bot: result });
+          setMessages((prevMessages) => {
+            const updatedMessages = [...prevMessages];
+            updatedMessages[prevMessages.length - 1].bot = result;
+            return updatedMessages;
           });
-          setBotMessage(result);
         }
       } catch (error) {
         console.error('Error reading response:', error);
@@ -95,15 +100,12 @@ const ChatPage: React.FC = () => {
     <div>
       <h2>Chat Page</h2>
       <h3>{chatId}</h3>
-      {conversation && <Messages messages={conversation.messages} />}
+      {conversation && <Messages messages={messages} />}
       {<StreamMessage chunk={chunk} stream={stream}/>}
       <input type="text" value={message} onChange={(e) => setMessage(e.target.value)}/>
       <button onClick={() => {
-        sendMessage(fetchData, user, message, conversation);
-        setConversation({
-          ...conversation,
-          messages: [...conversation.messages, { user: message, bot: '' }]
-        });
+        sendMessage(fetchData, user, message, messages);
+        setMessages([...messages, { user: message, bot: '' }]);
       }} disabled={loading}>{loading ? 'Sending...' : 'Send'}</button>
       {error && <div>Error: {error.message}</div>}
     </div>

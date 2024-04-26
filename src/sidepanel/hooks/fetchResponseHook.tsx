@@ -12,16 +12,27 @@ export const useFetchData = () => {
     const [response, setResponse] = useState<any>(null);
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    // const [state, setState] = useState<any>({
+    //     response: null,
+    //     error: null,
+    //     loading: false,
+    // });
 
     const fetchData = async (url: string, options: FetchOptions = {}) => {
         setLoading(true);
         setError(null);
         setResponse(null);
+        // setState({response: null, error: null, loading: true})
         try {
             const response = await fetch(url, options);
             if (response.status === 419) {
-                    refreshIdToken()
-                    return fetch(url, options)
+                    refreshIdToken();
+                    getUserFromStorage().then((user) => {
+                        console.log("Refreshed and IdToken", user.idToken)
+                        options.headers['Authorization'] = `Bearer ${user.idToken}`
+                        fetch(url, options);
+                    })
+                    return ;
                 }
             if (!response.ok) {
                 throw new Error(`HTTP error ${response.status}`)
@@ -54,9 +65,9 @@ const refreshIdToken = async () => {
                     throw new Error(`Failed to refresh token ${response.status}`)
                 }
                 const data = await response.json()
-                user.refreshToken = data.refreshToken;
-                user.idToken = data.idToken
-                chrome.storage.local.set({'user': user}, () => {})
+                user.refreshToken = data.refresh_token;
+                user.idToken = data.id_token
+                chrome.storage.local.set({'user': user}, () => {console.log("user refreshed", user.idToken, data.id_token)})
             })
         })
     } catch (error) {
