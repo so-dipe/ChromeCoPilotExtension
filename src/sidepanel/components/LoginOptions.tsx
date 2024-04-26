@@ -1,8 +1,8 @@
 import React from 'react';
 import serverUrl from '../../static/config';
-import ProfilePage from '../pages/ProfilePage';
+import { useNavigate } from 'react-router-dom';
 
-function fetchUserfromFirebase(token: string) {
+function fetchUserfromFirebase(token: string, navigate: any) {
     fetch(`${serverUrl}/auth/oauth/google/get_user`, {
         method: 'GET',
         headers: {
@@ -18,17 +18,27 @@ function fetchUserfromFirebase(token: string) {
      }
     })
     .then ((data) => {
-        chrome.storage.local.set({ user: data });
+        console.log(data);
+        chrome.storage.local.set({ user: data }, () => {
+            console.log('User data saved');
+        });
+        chrome.storage.local.set({ token: data.idToken }, () => {
+            console.log('User data saved');
+        })
+        chrome.storage.local.set({ refreshToken: data.refreshToken }, () => {
+            console.log('User data saved');
+        })
         chrome.storage.local.set({ isLoggedIn: true });
-        // return <ProfilePage />
+        navigate('profile');
     })
     .catch((error) => {
         console.error('Error:', error);
-        // return <WelcomePage />
+        navigate('/');
     });
 }
 
 const LoginOptions: React.FC = () => {
+    const navigate = useNavigate();
     
     const handleGoogleLogin = () => {
         const width = 500;
@@ -50,7 +60,7 @@ const LoginOptions: React.FC = () => {
                         if (cookie) {
                             chrome.tabs.onUpdated.removeListener(updateListener);
                             chrome.windows.remove(window.id);
-                            fetchUserfromFirebase(cookie.value);
+                            fetchUserfromFirebase(cookie.value, navigate);
                         }
                     });
                     }

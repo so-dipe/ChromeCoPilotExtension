@@ -1,22 +1,35 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import useLoginStatus from './hooks/useLoginStatus';
-import ProfilePage from './pages/ProfilePage';
+import {
+    createHashRouter,
+    RouterProvider,
+  } from "react-router-dom";
 import WelcomePage from './pages/WelcomePage';
+import ProfilePage from './pages/ProfilePage';
+import ChatPage from './pages/ChatPage';
 
 const container = document.createElement('div');
 document.body.appendChild(container);
 const root = createRoot(container);
 
-const App: React.FC = () => {
-    const isLoggedIn = useLoginStatus();
+const router = createHashRouter([
+    {
+      path: "/",
+      element: <WelcomePage />,
+    },
+    {
+        path: "profile",
+        element: <ProfilePage />,
+    },
+    {
+        path: "chat/:chatId",
+        element: <ChatPage />,
+    }
+  ]);
 
-    return (
-        <React.StrictMode>
-          {isLoggedIn ? <ProfilePage /> : <WelcomePage />}
-        </React.StrictMode>
-      );
-    };
-
-root.render(<App />);
+root.render(
+    <React.StrictMode>
+        <RouterProvider router={router} />
+    </React.StrictMode>
+);
 
