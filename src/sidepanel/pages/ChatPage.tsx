@@ -4,10 +4,25 @@ import { useUserData, useToken, useRefreshToken } from '../hooks/chromeStorageHo
 import serverUrl from '../../static/config';
 import ConversationsDB from '../../db/db';
 import { useFetchData } from '../hooks/fetchResponseHook';
+import Message from '../components/Message';
+import Messages from '../components/Messages';
+import StreamMessage from '../components/StreamMessage'
+
+const messagePairsToList = (messages) => {
+  if (!Array.isArray(messages)) {
+    throw new Error('Messages must be an array');
+  }
+
+  return messages.flatMap((messagePair) => [
+    { role: 'user', content: messagePair.user },
+    { role: 'model', content: messagePair.bot }
+  ]);
+};
+
 
 const sendMessage = async (fetchData, user, message, conversation) => {
   const url = `${serverUrl}/api/v1/messaging/stream_response`;
-  const response = await fetchData(url, {
+  await fetchData(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -15,71 +30,81 @@ const sendMessage = async (fetchData, user, message, conversation) => {
     },
     body: JSON.stringify({
       message: message,
-      history: conversation.messages,
+      history: messagePairsToList(conversation.messages),
     })
   });
-  }
-
-const renderMessage = async(message, sender) => {
-  return (
-    <div>
-      {sender}: {message}
-    </div>
-  )
-}
-
-const renderMessages = async(messages) => {
-  return (
-    messages.array.foreach((element) => {
-      renderMessage(element.user, "You");
-      renderMessage(element.bot, "Chrome CoPilot")
-    })
-  )
-}
-  
+  }  
 
 const ChatPage: React.FC = () => {
   const user = useUserData();
   const chatId = useParams<{ chatId: string }>().chatId
   const { response, error, loading, fetchData} = useFetchData();
   const [conversation, setConversation] = useState<any>(null);
+  const [db, setDb] = useState<any>(null);
+  const [message, setMessage] = useState<string>('');
+  const [botMessage, setBotMessage] = useState<string>('');
+  const [stream, setStream] = useState<boolean>(false);
+  const [chunk, setChunk] = useState<string>('');
+  const [previousChunk, setPreviousChunk] = useState<string>('');
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId, 1);
     const conversation = await db.getConversation(chatId);
     setConversation(conversation);
+    setDb(db);
   }
 
   useEffect(() => {
     if (user) {
       fetchConversation()
     }
-  }, [user])
+  }, [user, botMessage])
 
   useEffect(() => {
     const readResponse = async () => {
-      if (response && conversation) {
-        const reader = response.body.getReader();
-        let result = '';
-        while (true) {
-          const {done, value} = await reader.read();
-          if (done) {
-            break;
+      try {
+        if (response && conversation) {
+          setStream(true); // Set stream to true before processing response
+          const reader = response.body.getReader();
+          let result = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              break;
+            }
+            result += new TextDecoder().decode(value);
+            setChunk(new TextDecoder().decode(value));
           }
-          result += new TextDecoder().decode(value);
+          db.appendMessagePair(chatId, {
+            "user": message,
+            "bot": result
+          });
+          setBotMessage(result);
         }
-        console.log(result);
+      } catch (error) {
+        console.error('Error reading response:', error);
+      } finally {
+        setStream(false);
       }
-    }
-  })
+    };
+    readResponse();
+  }, [response]);
 
 
   return (
     <div>
       <h2>Chat Page</h2>
       <h3>{chatId}</h3>
-      <input type="text" />
-      <button onClick={() => sendMessage(fetchData, user, "hello", conversation)} disabled={loading}>{loading ? 'Sending...' : 'Send'}</button>
+      {conversation && <Messages messages={conversation.messages} />}
+      {<StreamMessage chunk={chunk} stream={stream}/>}
+      <input type="text" value={message} onChange={(e) => setMessage(e.target.value)}/>
+      <button onClick={() => {
+        sendMessage(fetchData, user, message, conversation);
+        setConversation({
+          ...conversation,
+          messages: [...conversation.messages, { user: message, bot: '' }]
+        });
+      }} disabled={loading}>{loading ? 'Sending...' : 'Send'}</button>
       {error && <div>Error: {error.message}</div>}
     </div>
   );
