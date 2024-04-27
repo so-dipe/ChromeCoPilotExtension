@@ -27,11 +27,13 @@ export const useFetchData = () => {
             const response = await fetch(url, options);
             if (response.status === 419) {
                     refreshIdToken();
-                    getUserFromStorage().then((user) => {
-                        console.log("Refreshed and IdToken", user.idToken)
-                        options.headers['Authorization'] = `Bearer ${user.idToken}`
-                        fetch(url, options);
-                    })
+                    setTimeout(() => {
+                        getUserFromStorage().then((user) => {
+                            console.log("Refreshed and IdToken", user.idToken)
+                            options.headers['Authorization'] = `Bearer ${user.idToken}`
+                            fetch(url, options);
+                        });
+                    }, 100);
                     return ;
                 }
             if (!response.ok) {
@@ -67,7 +69,7 @@ const refreshIdToken = async () => {
                 const data = await response.json()
                 user.refreshToken = data.refresh_token;
                 user.idToken = data.id_token
-                chrome.storage.local.set({'user': user}, () => {console.log("user refreshed", user.idToken, data.id_token)})
+                chrome.storage.local.set({'user': user}, () => {})
             })
         })
     } catch (error) {
