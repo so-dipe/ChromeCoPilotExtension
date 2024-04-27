@@ -1,3 +1,8 @@
+/*
+  This is the User's Profile Page. It displays the User's details, a sorted list of their
+  Conversations through the Conversations Component and a logout button.
+*/
+
 import React from 'react';
 import { useUserData, useLoginStatus, useToken } from '../hooks/chromeStorageHooks';
 import Logout from '../components/Logout';

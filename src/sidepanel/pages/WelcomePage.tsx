@@ -1,3 +1,9 @@
+/*
+  This file contains the WelcomePage component which is the first page that the user sees when they open the extension.
+  It displays LoginOptions component which allows the user to login to the extension.
+  It is only displayed when the user isn't logged in
+*/
+
 import React, { useEffect } from 'react';
 import LoginOptions from '../components/LoginOptions';
 import { useLoginStatus } from '../hooks/chromeStorageHooks';
@@ -21,4 +27,4 @@ const WelcomePage: React.FC = () => {
     );
   };
   
-  export default WelcomePage;
+export default WelcomePage;

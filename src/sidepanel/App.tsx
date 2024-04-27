@@ -1,3 +1,6 @@
+/**
+ * Ignore this file for now. This is a placeholder for the sidepanel.
+ */
 import React from 'react'
 import {useLoginStatus} from './hooks/chromeStorageHooks';
 import ProfilePage from './pages/ProfilePage';

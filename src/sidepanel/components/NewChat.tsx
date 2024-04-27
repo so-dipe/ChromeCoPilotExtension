@@ -1,3 +1,7 @@
+/**
+ * NewChat.tsx
+ * A button for creating a new chat
+ */
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../hooks/chromeStorageHooks";

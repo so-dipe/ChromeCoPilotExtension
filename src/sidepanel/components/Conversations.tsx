@@ -1,3 +1,7 @@
+/**
+ * Conversations.tsx
+ * A component to sort and render a list of conversations, used by Profile Page
+ */
 import React, { useState, useEffect } from 'react';
 import ConversationsDB from '../../db/db';
 import { useUserData } from '../hooks/chromeStorageHooks';

@@ -1,3 +1,7 @@
+/**
+ * Message.tsx
+ * A component to conditionally render a Message for user or bot
+ */
 import React from 'react'
 
 interface Props {

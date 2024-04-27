@@ -1,3 +1,7 @@
+/**
+ * Conversation.tsx
+ * A component to render a single conversation
+ */
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 

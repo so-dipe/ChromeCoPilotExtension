@@ -1,10 +1,12 @@
+/* This is the component that renders the Chat Page. It contains chat messages and a input to send messages to the
+ * server. It works closely with the Messages and StreamMessage Components
+ */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUserData, useToken, useRefreshToken } from '../hooks/chromeStorageHooks';
+import { useUserData } from '../hooks/chromeStorageHooks';
 import serverUrl from '../../static/config';
 import ConversationsDB from '../../db/db';
 import { useFetchData } from '../hooks/fetchResponseHook';
-import Message from '../components/Message';
 import Messages from '../components/Messages';
 import StreamMessage from '../components/StreamMessage'
 
@@ -57,10 +59,7 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      fetchConversation()
-      // if (conversation) {
-      //   setMessages(conversation.messages)
-      // }
+      fetchConversation();
     }
   }, [user])
 
@@ -68,7 +67,7 @@ const ChatPage: React.FC = () => {
     const readResponse = async () => {
       try {
         if (response && conversation) {
-          setStream(true); // Set stream to true before processing response
+          setStream(true); 
           const reader = response.body.getReader();
           let result = '';
           while (true) {

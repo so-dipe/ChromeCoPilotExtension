@@ -1,3 +1,8 @@
+/**
+ * StreamMessage.tsx
+ * This component takes the message chunks recieved from the server
+ * and creates a typewriter effect by displaying the message character by character
+ */
 import React, { useState, useEffect } from 'react';
 
 interface Props {

@@ -1,4 +1,8 @@
-import { useState, useEffect } from 'react';
+/* This is the fetchResponseHook.tsx file. It contains a custom Hook for 
+ * fetching responses from the server and handling common response errors like
+ * 401, 419 (expired Token), etc.
+ */
+import { useState } from 'react';
 import serverUrl from '../../static/config';
 import { getUserFromStorage } from '../utils/storage_utils';
 
