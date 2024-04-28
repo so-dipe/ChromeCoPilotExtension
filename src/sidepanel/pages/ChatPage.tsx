@@ -10,6 +10,7 @@ import { useFetchData } from '../hooks/fetchResponseHook';
 import Messages from '../components/Messages';
 import StreamMessage from '../components/StreamMessage'
 import OpenTabs from '../components/OpenTabs';
+import FileUpload from '../components/FileUpload';
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -101,6 +102,7 @@ const ChatPage: React.FC = () => {
       <h2>Chat Page</h2>
       <h3>{chatId}</h3>
       <OpenTabs />
+      <FileUpload />
       {conversation && <Messages messages={messages} />}
       {<StreamMessage chunk={chunk} stream={stream}/>}
       <input type="text" value={message} onChange={(e) => setMessage(e.target.value)}/>
