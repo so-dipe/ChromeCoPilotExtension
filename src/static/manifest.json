@@ -9,12 +9,18 @@
     },
     "host_permissions": [
         "http://localhost:8000/*",
-        "https://chromecopilot-66au4vtdba-uc.a.run.app/*"
+        "https://chromecopilot-66au4vtdba-uc.a.run.app/*",
+        "file:///*/*"
     ],
+    "optional_host_permissions":[
+        "https://*/*",
+        "http://*/*"
+      ],
     "options_page": "options.html",
     "permissions": [
         "activeTab",
         "cookies",
+        "scripting",
         "sidePanel",
         "storage",
         "tabs"
