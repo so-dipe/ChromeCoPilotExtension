@@ -1,3 +1,7 @@
+/**
+ * LoginOptions.tsx
+ * A component to handle different forms of login and store user data to chrome.storage.local
+ */
 import React from 'react';
 import serverUrl from '../../static/config';
 import { useNavigate } from 'react-router-dom';

@@ -1,3 +1,8 @@
+/**
+ * Main entry point of the ChromeCoPilotExtension application.
+ * Sets up routing using react-router-dom and renders the application root component.
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import Logout from "../components/Logout";
@@ -22,6 +23,19 @@ const TypewriterText = ({ text }) => {
 
   return <span>{displayedText}</span>;
 };
+=======
+/*
+  This is the User's Profile Page. It displays the User's details, a sorted list of their
+  Conversations through the Conversations Component and a logout button.
+*/
+
+import React from 'react';
+import { useUserData, useLoginStatus, useToken } from '../hooks/chromeStorageHooks';
+import Logout from '../components/Logout';
+import NewChat from '../components/NewChat';
+import ConversationsDB from '../../db/db';
+import Conversations from '../components/Conversations'
+>>>>>>> 000547b0e2d84ef825066edc8bc0e6e35c7cf017
 
 const ProfilePage: React.FC = () => {
   const user = useUserData();
@@ -52,10 +66,16 @@ const ProfilePage: React.FC = () => {
           </h2>
         </div>
       )}
+<<<<<<< HEAD
       <div className="flex flex-row items-center font-semibold text-lg  space-x-6">
         <NewChat />
         <Logout />
       </div>
+=======
+      <NewChat />
+      <Conversations />
+      <Logout />
+>>>>>>> 000547b0e2d84ef825066edc8bc0e6e35c7cf017
     </div>
   );
 };

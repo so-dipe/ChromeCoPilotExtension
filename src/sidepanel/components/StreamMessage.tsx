@@ -1,3 +1,8 @@
+/**
+ * StreamMessage.tsx
+ * This component takes the message chunks recieved from the server
+ * and creates a typewriter effect by displaying the message character by character
+ */
 import React, { useState, useEffect } from 'react';
 
 interface Props {
@@ -6,27 +11,42 @@ interface Props {
 }
 
 const StreamMessage: React.FC<Props> = ({ chunk, stream }) => {
-    const [previousChunks, setPreviousChunks] = useState<string[]>([]);
+    const [previousChunks, setPreviousChunks] = useState<string>('');
+    const [displayedText, setDisplayedText] = useState<string>('');
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
 
     useEffect(() => {
-        setPreviousChunks(prevChunks => [...prevChunks, chunk]);
+        setPreviousChunks(previousChunks + chunk);
     }, [chunk]);
 
     useEffect(() => {
         console.log('changing stream to ', stream)
         if (!stream) {
-            setPreviousChunks([]);
+            setPreviousChunks('');
         }
     }, [stream]);
+
+    useEffect(() => {
+        setIsStreaming(true);
+        const typewriter = setInterval(() => {
+          if (currentIndex < previousChunks.length) {
+            setDisplayedText((prevText) => prevText + previousChunks[currentIndex]);
+            setCurrentIndex(currentIndex + 1);
+          } else {
+            clearInterval(typewriter);
+            setIsStreaming(false);
+          }
+        }, 5);
+      
+        return () => clearInterval(typewriter);
+      }, [previousChunks, currentIndex]);
 
     return (
         stream && (
             <div>
             <div>ChromeCoPilot:</div>
-            {/* Display all previous chunks */}
-            {previousChunks.map((prevChunk, index) => (
-                <div key={index}>{prevChunk}</div>
-            ))}
+            {displayedText}
         </div>
         )
     );

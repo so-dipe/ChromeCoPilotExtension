@@ -1,3 +1,7 @@
+/**
+ * Messages.tsx
+ * A Component to render a list of message pairs (user, bot)
+ */
 import React from 'react'
 import Message from './Message'
 
