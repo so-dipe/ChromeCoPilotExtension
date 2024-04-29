@@ -9,6 +9,9 @@
     "watch": "webpack --watch --progress --config webpack.config.js"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "mammoth": "^1.7.2",
+    "pdfjs-dist": "^4.1.392",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",

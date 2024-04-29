@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import React, { useEffect } from "react";
-import LoginOptions from "../components/LoginOptions";
-import { useLoginStatus } from "../hooks/chromeStorageHooks";
-import { useNavigate } from "react-router-dom";
-=======
 /*
   This file contains the WelcomePage component which is the first page that the user sees when they open the extension.
   It displays LoginOptions component which allows the user to login to the extension.
@@ -14,7 +8,6 @@ import React, { useEffect } from 'react';
 import LoginOptions from '../components/LoginOptions';
 import { useLoginStatus } from '../hooks/chromeStorageHooks';
 import { useNavigate } from 'react-router-dom';
->>>>>>> 000547b0e2d84ef825066edc8bc0e6e35c7cf017
 
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -42,14 +35,8 @@ const WelcomePage: React.FC = () => {
           <LoginOptions />
         </div>
       </div>
-<<<<<<< HEAD
     </div>
   );
 };
 
-=======
-    );
-  };
-  
->>>>>>> 000547b0e2d84ef825066edc8bc0e6e35c7cf017
 export default WelcomePage;

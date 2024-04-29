@@ -1,4 +1,6 @@
-import React, {useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { readPdfUrl } from '../utils/file_reader';
+import { htmlParser } from '../utils/html_parser';
 
 const OpenTabs: React.FC = () => {
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
@@ -39,6 +41,12 @@ const OpenTabs: React.FC = () => {
         const tab = tabs.find((tab) => tab.id === tabId);
         setSelectedTab(tab);
 
+        if (tab.url && tab.url.split(".").pop() === "pdf") { 
+            readPdfUrl(tab.url).then((result) => {
+                console.log(result);
+            });
+        }
+
         chrome.scripting.executeScript(
             {
                 target: { tabId: tabId },
@@ -50,7 +58,7 @@ const OpenTabs: React.FC = () => {
                 console.log("script injected", result);
                 if (!chrome.runtime.lastError && result && result[0] && result[0].result) {
                     const htmlContent = result[0].result;
-                    console.log(htmlContent);
+                    const htmlParsed = htmlParser(htmlContent);
                 }
             }
         );

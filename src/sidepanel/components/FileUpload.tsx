@@ -1,22 +1,8 @@
 import React from 'react';
+import { readFile } from '../utils/file_reader';
 
 const FileUpload: React.FC = () => {
     const [fileContent, setFileContent] = React.useState<string | null>(null);
-
-    const readFile = async (file: File) => {
-        return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target) {
-                    resolve(event.target.result as string);
-                }
-            };
-            reader.onerror = (event) => {
-                reject(event);
-            };
-            reader.readAsText(file);
-        });
-    };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -28,7 +14,7 @@ const FileUpload: React.FC = () => {
 
     return (
         <div>
-            <input type="file" onChange={handleFileChange} />
+            <input type="file" accept=".pdf,.docx,.doc,.txt" onChange={handleFileChange} />
             {fileContent && <pre>{fileContent}</pre>}
         </div>
     );
