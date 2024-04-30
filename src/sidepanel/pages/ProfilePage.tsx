@@ -26,7 +26,7 @@ const TypewriterText = ({ text }) => {
 
 const ProfilePage: React.FC = () => {
   const user = useUserData();
-
+  console.log("user:", user);
   const time = new Date();
   const hour = time.getHours();
   let greeting;
@@ -45,26 +45,28 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center">
+    <div className="relative pt-5 flex flex-col items-center justify-between h-screen">
       {user && (
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            <TypewriterText text={`${greeting}, ${user.firstName}`} />
-          </h2>
-          {user.photoURL && (
-            <img
-              src={user.photo}
-              alt="Profile"
-              className="rounded-full h-24 w-24 mx-auto"
-            />
-          )}
-          <p>Email: {user.email}</p>
+        <div>
+          <div className="mb-8 text-center">
+            {user.photoUrl && (
+              <img
+                src={user.photoUrl}
+                alt="Profile"
+                className="rounded-full h-24 w-24 mx-auto"
+              />
+            )}
+            <h2 className="text-2xl mb-5 font-semibold text-gray-800">
+              <TypewriterText text={`${greeting}, ${user.firstName}`} />
+            </h2>
+            <p>what would you like to do </p>
+          </div>
+          <div className="font-semibold text-md w-70 ">
+            <NewChat />
+            {/* <Logout /> */}
+          </div>
         </div>
       )}
-      <div className="flex flex-row items-center font-semibold text-lg  space-x-6">
-        <NewChat />
-        <Logout />
-      </div>
       <Conversations />
     </div>
   );
