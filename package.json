@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "lunr": "^2.3.9",
     "mammoth": "^1.7.2",
     "pdfjs-dist": "^4.1.392",
     "react": "^18.2.0",
