@@ -3,7 +3,7 @@ import { useUserData } from "../hooks/chromeStorageHooks";
 import Logout from "../components/Logout";
 import NewChat from "../components/NewChat";
 import { ConversationsDB } from "../../db/db";
-import Conversations from '../components/Conversations'
+import Conversations from "../components/Conversations";
 import "tailwindcss/tailwind.css";
 
 const TypewriterText = ({ text }) => {
@@ -51,6 +51,14 @@ const ProfilePage: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-800">
             <TypewriterText text={`${greeting}, ${user.firstName}`} />
           </h2>
+          {user.photoURL && (
+            <img
+              src={user.photo}
+              alt="Profile"
+              className="rounded-full h-24 w-24 mx-auto"
+            />
+          )}
+          <p>Email: {user.email}</p>
         </div>
       )}
       <div className="flex flex-row items-center font-semibold text-lg  space-x-6">
