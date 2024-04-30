@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import LoginOptions from "../components/LoginOptions";
 import { useLoginStatus } from "../hooks/chromeStorageHooks";
 import { useNavigate } from "react-router-dom";
+import { FaSun, FaMoon } from "react-icons/fa";
 
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const WelcomePage: React.FC = () => {
         className={`absolute top-0 right-0 m-4 rounded-full p-2 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white z-10`}
         onClick={toggleDarkMode}
       >
-        {darkMode ? "Light Mode" : "Dark Mode"}
+        {darkMode ? <FaSun /> : <FaMoon />}
       </button>
 
       <div
