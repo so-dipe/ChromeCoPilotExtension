@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserData } from '../hooks/chromeStorageHooks';
 import serverUrl from '../../static/config';
-import ConversationsDB from '../../db/db';
+import { ConversationsDB, DocumentsDB } from '../../db/db';
 import { useFetchData } from '../hooks/fetchResponseHook';
 import Messages from '../components/Messages';
 import StreamMessage from '../components/StreamMessage'
@@ -50,14 +50,33 @@ const ChatPage: React.FC = () => {
   const [stream, setStream] = useState<boolean>(false);
   const [chunk, setChunk] = useState<string>('');
   const [messages, setMessages] = useState<any[]>([]);
+  const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
+  const [docsDb, setDocsDb] = useState<any>(null);
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId, 1);
     const conversation = await db.getConversation(chatId);
-    console.log("chatPage", conversation);
     setConversation(conversation);
     setMessages(conversation.messages)
     setDb(db);
+  };
+
+  const handleMessageSend = async (fetchData, user, message, messages) => { 
+    if (!selectedTab) {
+      return sendMessage(fetchData, user, message, messages);
+    }
+    const tabId = selectedTab.id;
+    const chunks = await docsDb.searchDocumentChunks(tabId, message);
+    if (chunks.length === 0) {
+      return sendMessage(fetchData, user, message, messages);
+    }
+    console.log("searched chunks", chunks)
+    let context = '';
+    for (const chunk of chunks) {
+      context += chunk.content;
+    }
+    context += message;
+    return sendMessage(fetchData, user, context, messages);
   };
 
   useEffect(() => {
@@ -65,6 +84,14 @@ const ChatPage: React.FC = () => {
       fetchConversation();
     }
   }, [user])
+
+  useEffect(() => { 
+    const db = new DocumentsDB();
+    setDocsDb(db);
+
+    return () => { db.close()}
+  }, []);
+
 
   useEffect(() => {
     const readResponse = async () => {
@@ -102,7 +129,7 @@ const ChatPage: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4">Chat Page</h2>
         <h3 className="text-sm font-semibold mb-2">{chatId}</h3>
-        <OpenTabs />
+        <OpenTabs onSelectTab={(tab) => setSelectedTab(tab)} />
         <FileUpload />
 
         {conversation && <Messages messages={conversation.messages} />}
@@ -119,7 +146,7 @@ const ChatPage: React.FC = () => {
         />
         <button
           onClick={() => {
-            sendMessage(fetchData, user, message, messages);
+            handleMessageSend(fetchData, user, message, messages);
             setConversation({
               ...conversation,
               messages: [...conversation.messages, { user: message, bot: "" }],

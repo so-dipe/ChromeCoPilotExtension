@@ -1,11 +1,37 @@
 import React, { useState, useEffect } from 'react'
 import { readPdfUrl } from '../utils/file_reader';
 import { htmlParser } from '../utils/html_parser';
+import { DocumentsDB } from '../../db/db';
 
-const OpenTabs: React.FC = () => {
+const extractHTMl = () => { 
+    return document.documentElement.outerHTML;
+}
+
+const OpenTabs: React.FC<{ onSelectTab: (tab: chrome.tabs.Tab) => void }> = ({ onSelectTab }) => {
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
     const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
     const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
+    const [docsDb, setDocsDb] = useState<any>(null);
+
+    useEffect(() => {
+        const db = new DocumentsDB();
+        setDocsDb(db);
+
+        return () => { db.close()}
+    }, [])
+
+    useEffect(() => {
+        const handleTabRemove = (tabId: number) => { 
+            if (selectedTab?.id === tabId) { 
+                setSelectedTab(null);
+            }
+            docsDb.deleteDocument(tabId);
+        }
+        chrome.tabs.onRemoved.addListener(handleTabRemove);
+        return () => {
+            chrome.tabs.onRemoved.removeListener(handleTabRemove);
+        }
+    }, [docsDb, selectedTab])
 
 
     useEffect(() => {
@@ -40,25 +66,20 @@ const OpenTabs: React.FC = () => {
         const tabId = parseInt(event.target.value, 10);
         const tab = tabs.find((tab) => tab.id === tabId);
         setSelectedTab(tab);
+        onSelectTab(tab);
 
         if (tab.url && tab.url.split(".").pop() === "pdf") { 
             readPdfUrl(tab.url).then((result) => {
-                console.log(result);
+                docsDb.storeDocument(tabId, tab.title, result);
             });
         }
 
-        chrome.scripting.executeScript(
-            {
-                target: { tabId: tabId },
-                func: () => {
-                    return document.documentElement.outerHTML;
-                },
-            },
+        chrome.scripting.executeScript({ target: { tabId: tabId }, func: extractHTMl },
             (result) => {
-                console.log("script injected", result);
                 if (!chrome.runtime.lastError && result && result[0] && result[0].result) {
                     const htmlContent = result[0].result;
                     const htmlParsed = htmlParser(htmlContent);
+                    docsDb.storeDocument(tabId, tab.title, htmlParsed);
                 }
             }
         );
@@ -71,7 +92,11 @@ const OpenTabs: React.FC = () => {
                 {
                     tabs.map((tab) => (
                         <option key={tab.id} value={tab.id}>
-                            {tab.id === currentTab?.id ? `${tab.title} - Current Tab` : tab.title}
+                            {tab.id === currentTab?.id ? (
+                                `${tab.title} - Current Tab`
+                            ) : (
+                                tab.title
+                            )}
                         </option>
                     ))
                 }

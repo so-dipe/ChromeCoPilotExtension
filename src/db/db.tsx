@@ -215,9 +215,9 @@ class DocumentsDB {
     private dbVersion: number;
     private db: IDBDatabase | null;
 
-    constructor(dbName: string, dbVersion: number) {
-        this.dbName = dbName;
-        this.dbVersion = dbVersion;
+    constructor() {
+        this.dbName = "docs";
+        this.dbVersion = 1;
         this.db = null;
         this.open();
     }
@@ -243,8 +243,8 @@ class DocumentsDB {
                 store.createIndex('contentChunks', 'contentChunks', { unique: false, multiEntry: true });
                 store.createIndex('ftIndex', 'ftIndex', { unique: false });
 
-                this.db.createObjectStore('vectors', { autoIncrement: true });
-                this.db.createObjectStore('indexes', { autoIncrement: true });  
+                // this.db.createObjectStore('vectors', { autoIncrement: true });
+                // this.db.createObjectStore('indexes', { autoIncrement: true });  
             };
         });
     }
@@ -267,12 +267,15 @@ class DocumentsDB {
                     id,
                     name,
                     contentChunks: chunks,
-                    ftIndex: index,
+                    ftIndex: JSON.stringify(index),
                 });
-                transaction.objectStore('indexes').add({ index });
+                // transaction.objectStore('indexes').add({ index });
 
                 request.onerror = () => {
-                    reject(request.error);
+                    if (request.error.name !== 'ConstraintError') { 
+                        reject(request.error);
+                    }
+                    this.updateDocument(id, name, content).then(resolve).catch(reject);
                 };
 
                 request.onsuccess = () => {
@@ -281,6 +284,15 @@ class DocumentsDB {
             });
         });
     };
+
+    async updateDocument(id: string, name: string, content: string): Promise<any> { 
+        new Promise((resolve, reject) => { 
+            this.deleteDocument(id).then(() => { 
+                this.storeDocument(id, name, content).then(resolve).catch(reject);
+                console.log("Updated document", id)
+            });
+        });
+    }
 
     async getDocument(id: number): Promise<any> { 
         return new Promise((resolve, reject) => { 
@@ -301,7 +313,7 @@ class DocumentsDB {
         });
     }
 
-    async searchDocumentChunks(query: string, documentId: string): Promise<any[]> {
+    async searchDocumentChunks(documentId: number, query: string): Promise<any[]> {
         return new Promise((resolve, reject) => {
             this.open().then(() => {
                 const transaction = this.db.transaction('documents', 'readonly');
@@ -314,7 +326,9 @@ class DocumentsDB {
 
                 request.onsuccess = () => { 
                     const document = request.result;
-                    const results = document.ftIndex.search(query);
+                    console.log("Document", document);
+                    const index = lunr.Index.load(JSON.parse(document.ftIndex));
+                    const results = index.search(query);
                     const chunks = results.map((result) => document.contentChunks[result.ref]);
                     resolve(chunks);
                 };
@@ -323,6 +337,25 @@ class DocumentsDB {
         });
     }
 
+    async deleteDocument(id: string): Promise<void> { 
+        return new Promise((resolve, reject) => {
+            this.open().then(() => {
+                const transaction = this.db.transaction('documents', 'readwrite');
+                const store = transaction.objectStore('documents');
+                const request = store.delete(id);
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    console.log("Deleted document", id)
+                    resolve();
+                };
+            });
+        });
+    }
+
 }
 
-export default ConversationsDB;
+export { ConversationsDB, DocumentsDB };

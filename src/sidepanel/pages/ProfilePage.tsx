@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import Logout from "../components/Logout";
 import NewChat from "../components/NewChat";
-import ConversationsDB from "../../db/db";
+import { ConversationsDB } from "../../db/db";
 import Conversations from '../components/Conversations'
 import "tailwindcss/tailwind.css";
 
