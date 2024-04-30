@@ -33,7 +33,8 @@ const Conversations: React.FC = () => {
   };
 
   return (
-    <div className="shadow-2xl bg-gray-200 h-[40%] p-6 w-full flex flex-col items-center justify-center  rounded-t-3xl">
+    <div className="shadow-2xl bg-gray-200 h-[55%] p-4 w-full   rounded-t-3xl">
+      <p className="mb-5 text-center text-lg font-bold">Past Conversations</p>
       {conversations.map((conv, index) => (
         <Conversation key={index} conversation={conv} />
       ))}

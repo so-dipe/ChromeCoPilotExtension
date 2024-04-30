@@ -61,7 +61,7 @@ const ProfilePage: React.FC = () => {
             </h2>
             <p>what would you like to do </p>
           </div>
-          <div className="font-semibold text-md w-70 ">
+          <div className="font-semibold text-md w-70 cursor-pointer ">
             <NewChat />
             {/* <Logout /> */}
           </div>
