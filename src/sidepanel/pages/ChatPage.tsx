@@ -8,7 +8,6 @@ import serverUrl from '../../static/config';
 import { ConversationsDB, DocumentsDB } from '../../db/db';
 import { useFetchData } from '../hooks/fetchResponseHook';
 import Messages from '../components/Messages';
-import StreamMessage from '../components/StreamMessage'
 import OpenTabs from '../components/OpenTabs';
 import FileUpload from '../components/FileUpload';
 import "tailwindcss/tailwind.css";
@@ -47,11 +46,11 @@ const ChatPage: React.FC = () => {
   const [conversation, setConversation] = useState<any>(null);
   const [db, setDb] = useState<any>(null);
   const [message, setMessage] = useState<string>('');
-  const [stream, setStream] = useState<boolean>(false);
-  const [chunk, setChunk] = useState<string>('');
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
   const [docsDb, setDocsDb] = useState<any>(null);
+  const [botResponse, setBotResponse] = useState<string>('');
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId, 1);
@@ -70,14 +69,34 @@ const ChatPage: React.FC = () => {
     if (chunks.length === 0) {
       return sendMessage(fetchData, user, message, messages);
     }
-    console.log("searched chunks", chunks)
     let context = '';
     for (const chunk of chunks) {
-      context += chunk.content;
+      context += chunk;
     }
     context += message;
     return sendMessage(fetchData, user, context, messages);
   };
+
+  useEffect(() => {
+    const typewriter = setInterval(() => {
+      if (!botResponse) { return; }
+      if (currentIndex < botResponse.length) {
+        setMessages((prevMessages) => {
+          const updatedMessages = [...prevMessages];
+          const lastMessage = { ...updatedMessages[updatedMessages.length - 1] };
+          const newMessage = { ...lastMessage, bot: lastMessage.bot + botResponse[currentIndex] };
+          return [...updatedMessages.slice(0, updatedMessages.length - 1), newMessage];
+        });
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        clearInterval(typewriter);
+        setCurrentIndex(0);
+        setBotResponse('');
+      }
+    }, 20);
+
+    return () => clearInterval(typewriter);
+  }, [botResponse, messages]);
 
   useEffect(() => {
     if (user) {
@@ -97,7 +116,6 @@ const ChatPage: React.FC = () => {
     const readResponse = async () => {
       try {
         if (response && conversation) {
-          setStream(true); 
           const reader = response.body.getReader();
           let result = "";
           while (true) {
@@ -106,19 +124,14 @@ const ChatPage: React.FC = () => {
               break;
             }
             result += new TextDecoder().decode(value);
-            setChunk(new TextDecoder().decode(value));
+            setBotResponse(result);
           }
           db.appendMessagePair(chatId, { user: message, bot: result });
-          setMessages((prevMessages) => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[prevMessages.length - 1].bot = result;
-            return updatedMessages;
-          });
         }
       } catch (error) {
         console.error("Error reading response:", error);
       } finally {
-        setStream(false);
+        console.log("Message Recieved or Not.")
       }
     };
     readResponse();
@@ -132,9 +145,7 @@ const ChatPage: React.FC = () => {
         <OpenTabs onSelectTab={(tab) => setSelectedTab(tab)} />
         <FileUpload />
 
-        {conversation && <Messages messages={conversation.messages} />}
-        {/*AI response */}
-        {chunk && <StreamMessage chunk={chunk} stream={stream} />}
+        {<Messages messages={messages} />}
         {error && <div>Error: {error.message}</div>}
       </div>
       <div className="p-4 flex items-center">
@@ -147,10 +158,7 @@ const ChatPage: React.FC = () => {
         <button
           onClick={() => {
             handleMessageSend(fetchData, user, message, messages);
-            setConversation({
-              ...conversation,
-              messages: [...conversation.messages, { user: message, bot: "" }],
-            });
+            setMessages([...messages, { user: message, bot: '' }]);
           }}
           disabled={loading}
           className="py-2 px-4 bg-blue-500 text-white rounded-r-md ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"

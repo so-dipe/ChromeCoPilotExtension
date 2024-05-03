@@ -33,11 +33,10 @@ export const useFetchData = () => {
                     refreshIdToken();
                     setTimeout(() => {
                         getUserFromStorage().then((user) => {
-                            console.log("Refreshed and IdToken", user.idToken)
                             options.headers['Authorization'] = `Bearer ${user.idToken}`
                             fetch(url, options);
                         });
-                    }, 100);
+                    }, 1000);
                     return ;
                 }
             if (!response.ok) {

@@ -40,8 +40,6 @@ const ProfilePage: React.FC = () => {
 
   if (user) {
     const db = new ConversationsDB(user.localId, 1);
-    console.log(db);
-    console.log("conversations", db.getConversations());
   }
 
   return (

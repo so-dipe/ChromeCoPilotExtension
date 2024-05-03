@@ -326,9 +326,14 @@ class DocumentsDB {
 
                 request.onsuccess = () => { 
                     const document = request.result;
-                    console.log("Document", document);
                     const index = lunr.Index.load(JSON.parse(document.ftIndex));
                     const results = index.search(query);
+                    if (results.length === 0) { 
+                        const firstChunk = document.contentChunks[0];
+                        const lastChunk = document.contentChunks[document.contentChunks.length - 1];
+                        const chunks = firstChunk + lastChunk;
+                        resolve([chunks]);
+                    }
                     const chunks = results.map((result) => document.contentChunks[result.ref]);
                     resolve(chunks);
                 };

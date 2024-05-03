@@ -8,42 +8,45 @@ import React, { useState, useEffect } from 'react';
 interface Props {
     chunk: string;
     stream: boolean;
+    onStream?: (isStreaming: boolean) => void;
 }
 
-const StreamMessage: React.FC<Props> = ({ chunk, stream }) => {
-    const [previousChunks, setPreviousChunks] = useState<string>('');
+const StreamMessage: React.FC<Props> = ({ chunk, stream, onStream }) => {
+    const [streamChunks, setStreamChunks] = useState<string>('');
     const [displayedText, setDisplayedText] = useState<string>('');
     const [isStreaming, setIsStreaming] = useState<boolean>(false);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
 
     useEffect(() => {
-        setPreviousChunks(previousChunks + chunk);
+        setStreamChunks(streamChunks + chunk);
     }, [chunk]);
 
     useEffect(() => {
-        console.log('changing stream to ', stream)
-        if (!stream) {
-            setPreviousChunks('');
+        if (!isStreaming) {
+          setStreamChunks('');
         }
-    }, [stream]);
+    }, [stream, isStreaming]);
 
     useEffect(() => {
-        setIsStreaming(true);
+      setIsStreaming(true);
+      onStream && onStream(true);
         const typewriter = setInterval(() => {
-          if (currentIndex < previousChunks.length) {
-            setDisplayedText((prevText) => prevText + previousChunks[currentIndex]);
+          if (currentIndex < streamChunks.length) {
+            setDisplayedText((prevText) => prevText + streamChunks[currentIndex]);
             setCurrentIndex(currentIndex + 1);
           } else {
             clearInterval(typewriter);
             setIsStreaming(false);
+            setDisplayedText('');
+            onStream && onStream(false);
           }
-        }, 5);
-      
+        }, 20);
+
         return () => clearInterval(typewriter);
-      }, [previousChunks, currentIndex]);
+      }, [streamChunks, currentIndex]);
 
     return (
-        stream && (
+        isStreaming && (
             <div>
             <div>ChromeCoPilot:</div>
             {displayedText}
