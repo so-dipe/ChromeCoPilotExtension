@@ -11,6 +11,7 @@ import Messages from '../components/Messages';
 import OpenTabs from '../components/OpenTabs';
 import FileUpload from '../components/FileUpload';
 import "tailwindcss/tailwind.css";
+import Back from '../components/Back'
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -182,7 +183,7 @@ const ChatPage: React.FC = () => {
     <div className="h-screen flex flex-col">
       <div className="flex-1 overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
-        <h3 className="text-sm font-semibold mb-2">{chatId}</h3>
+        <Back />
         <OpenTabs onSelectTab={(tab) => setSelectedTab(tab)} />
         <FileUpload />
 
