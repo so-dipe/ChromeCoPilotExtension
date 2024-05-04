@@ -59,7 +59,7 @@ const ChatPage: React.FC = () => {
   const user = useUserData();
   const chatId = useParams<{ chatId: string }>().chatId;
   const { response, error, loading, fetchData } = useFetchData();
-  const [conversation, setConversation] = useState<any>(null);
+  // const [conversation, setConversation] = useState<any>(null);
   const [db, setDb] = useState<any>(null);
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<any[]>([]);
@@ -73,7 +73,7 @@ const ChatPage: React.FC = () => {
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId, 1);
     const conversation = await db.getConversation(chatId);
-    setConversation(conversation);
+    // setConversation(conversation);
     setMessages(conversation.messages);
     setTitle(conversation.title);
     if (conversation.title !== 'UNTITLED') {
@@ -172,8 +172,6 @@ const ChatPage: React.FC = () => {
         db.appendMessagePair(chatId, { user: message, bot: result });
       } catch (error) {
         console.error("Error reading response:", error);
-      } finally {
-        console.log("Message Recieved or Not.")
       }
     };
     readResponse();

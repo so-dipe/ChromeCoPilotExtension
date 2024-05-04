@@ -26,7 +26,6 @@ const TypewriterText = ({ text }) => {
 
 const ProfilePage: React.FC = () => {
   const user = useUserData();
-  console.log("user:", user);
   const time = new Date();
   const hour = time.getHours();
   let greeting;
