@@ -1,12 +1,17 @@
 import lunr from 'lunr';
+import DOMPurify from 'dompurify';
 
 interface IndexDocument {
     id: number;
     content: string;
 }
 
-const contentToChunks = (content: string): string[] => { 
+const contentToChunks = (content: string): string[] => {
+    content = DOMPurify.sanitize(content);
+    const escapeChars = /[\t\n\r\f\v]/g;
     content = content.trim();
+    content = content.replace(/\s+/g, ' ')
+    content = content.replace(escapeChars, '');
     const chunks = content.match(/.{1,1000}\s*/g);
     return chunks ?? [content];
 }
