@@ -16,6 +16,8 @@ import ChatDocuments from '../components/ChatDocuments';
 import SendIcon from '@mui/icons-material/Send';
 import { CircularProgress } from '@mui/material';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -197,8 +199,9 @@ const ChatPage: React.FC = () => {
         {showDocuments && <ChatDocuments chatId={chatId} />}
 
         {<Messages messages={messages} />}
-        {error && <div>Error: {error.message}</div>}
+        {/* {error && <div>Error: {error.message}</div>} */}
       </div>
+      {error && <Alert severity='error'><AlertTitle>Error</AlertTitle>{error.message}</Alert>}
       <div className="p-1 flex items-center">
         <TextareaAutosize
           className="w-80 text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"

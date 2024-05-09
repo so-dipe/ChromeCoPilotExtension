@@ -11,7 +11,6 @@ const ProfileButton: React.FC = () => {
     const handleClick = () => {
         navigate('/profile')
     }
-    console.log(user)
 
     return (
         (

@@ -21,7 +21,7 @@ const Messages: React.FC<Props> = ({messages}) => {
         <div className='messages-container'>
             {messages.map((messagePair, index) => (
                 // <Paper elevation={3} square={false}>
-                <div>
+                <div key={index}>
                     <Message content={messagePair.user} sender="user" />
                     {messagePair.bot === '' ? <div></div> : <Message content={messagePair.bot} sender="bot" />}
                     <Divider />
