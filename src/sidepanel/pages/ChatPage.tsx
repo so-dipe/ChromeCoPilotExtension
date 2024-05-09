@@ -1,7 +1,7 @@
 /* This is the component that renders the Chat Page. It contains chat messages and a input to send messages to the
  * server. It works closely with the Messages and StreamMessage Components
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserData } from '../hooks/chromeStorageHooks';
 import serverUrl from '../../static/config';
@@ -76,6 +76,7 @@ const ChatPage: React.FC = () => {
   const [title, setTitle] = useState<string>('UNTITLED');
   const [titleGen, setTitleGen] = useState<boolean>(false);
   const [showDocuments, setShowDocuments] = useState(false);
+  const textareaRef = useRef(null);
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
@@ -90,7 +91,9 @@ const ChatPage: React.FC = () => {
   };
 
   const handleMessageSend = async (fetchData, user, message, messages) => { 
-    setMessage('');
+    if (textareaRef.current) {
+      textareaRef.current.value = '';
+    }
     if (!selectedTab) {
       return sendMessage(fetchData, user, message, messages);
     }
@@ -204,6 +207,7 @@ const ChatPage: React.FC = () => {
       {error && <Alert severity='error'><AlertTitle>Error</AlertTitle>{error.message}</Alert>}
       <div className="p-1 flex items-center">
         <TextareaAutosize
+          ref={textareaRef}
           className="w-80 text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
           aria-label="empty textarea"
           placeholder="Chat with Chrome CoPilot..."
