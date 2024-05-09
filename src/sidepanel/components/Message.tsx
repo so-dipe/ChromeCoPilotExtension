@@ -7,6 +7,9 @@ import { parse, MarkedOptions, Renderer } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css'
+import Avatar from '@mui/material/Avatar';
+import { useUserData } from '../hooks/chromeStorageHooks';
+import 'tailwindcss/tailwind.css';
 
 const renderer = new Renderer();
 
@@ -37,6 +40,7 @@ const options: MarkedOptions = {
 
 const Message: React.FC<Props> = ({ sender, content }) => {
     const [htmlContent, setHtmlContent] = useState<string>('');
+    const user = useUserData();
 
     useEffect(() => {
         const parsedContent = async () => { 
@@ -46,8 +50,14 @@ const Message: React.FC<Props> = ({ sender, content }) => {
         parsedContent();
     }, [content]);
     return (
-        <div className={sender === 'bot'? 'ai': 'user'}>
-            <span className="message-sender">{sender === 'bot' ? 'Chrome CoPilot' : 'You'}:</span>
+        <div className={`flex items-center ${sender === 'bot' ? 'ai' : 'user'}`}>
+            {user && (
+                <div className="mr-2">
+                    {sender === 'bot' ? <Avatar className="w-3 h-3">CCP</Avatar> : (
+                    user.photoUrl ? <Avatar className="w-3 h-3" src={user.photoUrl} /> : <Avatar className = "w-3 h-3">{user.fullName.charAt(0).toUpperCase()}</Avatar>
+                    )}
+                </div>
+            )}
             <div className="message-content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />
         </div>
     )

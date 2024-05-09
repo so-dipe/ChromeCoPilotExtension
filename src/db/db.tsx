@@ -33,9 +33,9 @@ class ConversationsDB {
     private dbVersion: number;
     private db: IDBDatabase | null;
 
-    constructor(dbName: string, dbVersion: number) {
+    constructor(dbName: string) {
         this.dbName = dbName;
-        this.dbVersion = dbVersion;
+        this.dbVersion = 3;
         this.db = null;
         this.open();
     }
@@ -60,6 +60,7 @@ class ConversationsDB {
                 store.createIndex('title', 'title', { unique: false });
                 store.createIndex('lastUpdated', 'lastUpdated', { unique: false });
                 store.createIndex('messages', 'messages', { unique: false });
+                store.createIndex('docsId', 'docsId', { unique: false, multiEntry: true });
             };
         });
     }
@@ -154,7 +155,8 @@ class ConversationsDB {
                     id,
                     title: "UNTITLED",
                     lastUpdated: Date.now(),
-                    messages: []
+                    messages: [],
+                    docsId: [],
                 });
 
                 request.onerror = () => {
@@ -196,6 +198,66 @@ class ConversationsDB {
         });
     }
 
+    async addDocumentToConversation(conversationId: string, docId: string): Promise<void> { 
+        return new Promise((resolve, reject) => {
+            this.open().then(() => {
+                const transaction = this.db.transaction('conversations', 'readwrite');
+                const store = transaction.objectStore('conversations');
+                const request = store.get(conversationId);
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    const conversation = request.result;
+                    console.log("add document", conversation, docId);
+                    conversation.docsId.push(docId);
+                    const updateRequest = store.put(conversation);
+
+                    updateRequest.onerror = () => {
+                        reject(updateRequest.error);
+                    };
+
+                    updateRequest.onsuccess = () => {
+                        resolve();
+                    };
+                };
+            });
+        });
+    }
+
+    async removeDocumentFromConversation(conversationId: string, docId: string): Promise<void> { 
+        return new Promise((resolve, reject) => {
+            this.open().then(() => {
+                const transaction = this.db.transaction('conversations', 'readwrite');
+                const store = transaction.objectStore('conversations');
+                const request = store.get(conversationId);
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    const conversation = request.result;
+                    const index = conversation.docsId.indexOf(docId);
+                    if (index > -1) {
+                        conversation.docsId.splice(index, 1);
+                    }
+                    const updateRequest = store.put(conversation);
+
+                    updateRequest.onerror = () => {
+                        reject(updateRequest.error);
+                    };
+
+                    updateRequest.onsuccess = () => {
+                        resolve();
+                    };
+                };
+            });
+        });
+    }
+
     async deleteConversation(id: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.open().then(() => {
@@ -212,6 +274,41 @@ class ConversationsDB {
                 };
             });
         });
+    }
+
+    async clearConversations(): Promise<void> {
+        return new Promise((resolve, reject) => { 
+            this.open().then(() => { 
+                const transaction = this.db.transaction('conversations', 'readwrite');
+                const store = transaction.objectStore('conversations');
+                const request = store.clear();
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    resolve();
+                };
+            });
+        });
+    }
+
+    async reset(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.close().then(() => {
+                const request = indexedDB.deleteDatabase(this.dbName);
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    resolve();
+                };
+            });
+        });
+    
     }
 }
 
@@ -307,10 +404,13 @@ class DocumentsDB {
                 const request = store.get(id);
 
                 request.onerror = () => {
+                    console.log("Getting document", request);
                     reject(request.error);
                 };
 
                 request.onsuccess = () => {
+                    if (!request.result) { reject(`Document with id: ${id} not found`) };
+                    console.log("Getting document", request);
                     resolve(request.result);
                 };
             

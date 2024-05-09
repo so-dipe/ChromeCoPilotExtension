@@ -33,6 +33,9 @@ export const useFetchData = () => {
                 }
                 setResponse(refreshedResponse);
                 return;
+            } else if (response.status === 401) {
+                chrome.storage.local.clear();
+                return;
             }
             if (!response.ok) {
                 throw new Error(`HTTP error ${response.status}`)

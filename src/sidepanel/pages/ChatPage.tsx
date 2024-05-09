@@ -11,7 +11,13 @@ import Messages from '../components/Messages';
 import OpenTabs from '../components/OpenTabs';
 import FileUpload from '../components/FileUpload';
 import "tailwindcss/tailwind.css";
-import Back from '../components/Back'
+import ProfileButton from '../components/ProfileButton'
+import ChatDocuments from '../components/ChatDocuments';
+import SendIcon from '@mui/icons-material/Send';
+import { CircularProgress } from '@mui/material';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -69,21 +75,22 @@ const ChatPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [title, setTitle] = useState<string>('UNTITLED');
   const [titleGen, setTitleGen] = useState<boolean>(false);
+  const [showDocuments, setShowDocuments] = useState(false);
 
   const fetchConversation = async () => {
-    const db = new ConversationsDB(user.localId, 1);
+    const db = new ConversationsDB(user.localId);
     const conversation = await db.getConversation(chatId);
     // setConversation(conversation);
     setMessages(conversation.messages);
     setTitle(conversation.title);
     if (conversation.title !== 'UNTITLED') {
-      console.log('wtf');
       setTitleGen(true);
     } 
     setDb(db);
   };
 
   const handleMessageSend = async (fetchData, user, message, messages) => { 
+    setMessage('');
     if (!selectedTab) {
       return sendMessage(fetchData, user, message, messages);
     }
@@ -98,6 +105,10 @@ const ChatPage: React.FC = () => {
     }
     context += message;
     return sendMessage(fetchData, user, context, messages);
+  };
+
+  const handleShowDocsClick = () => { 
+    setShowDocuments(!showDocuments);
   };
 
   useEffect(() => {
@@ -153,7 +164,6 @@ const ChatPage: React.FC = () => {
         if (!db) { return; }
         if (response.url.indexOf('get_chat_title') !== -1) {
           response.json().then((data) => {
-            console.log(data.text);
             setTitle(data.text)
             db.updateConversationTitle(chatId, data.text);
           });
@@ -178,32 +188,38 @@ const ChatPage: React.FC = () => {
   }, [response]);
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex-1 overflow-y-auto p-4">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
-        <Back />
-        <OpenTabs onSelectTab={(tab) => setSelectedTab(tab)} />
-        <FileUpload />
+    <div className="h-screen flex flex-col overflow-hidden">
+      <div className="flex items-center p-1">
+        <ProfileButton />
+        <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
+      </div>
+      <div className="flex-1 overflow-y-auto p-1">
+        <OpenTabs chatId={chatId} onSelectTab={(tab) => setSelectedTab(tab)} />
+        <button onClick={handleShowDocsClick}>View Documents</button>
+        {showDocuments && <ChatDocuments chatId={chatId} />}
 
         {<Messages messages={messages} />}
-        {error && <div>Error: {error.message}</div>}
+        {/* {error && <div>Error: {error.message}</div>} */}
       </div>
-      <div className="p-4 flex items-center">
-        <input
-          type="text"
+      {error && <Alert severity='error'><AlertTitle>Error</AlertTitle>{error.message}</Alert>}
+      <div className="p-1 flex items-center">
+        <TextareaAutosize
+          className="w-80 text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
+          aria-label="empty textarea"
+          placeholder="Chat with Chrome CoPilot..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="flex-1 py-2 px-4 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          maxRows={10}
         />
+        <FileUpload chatId={chatId} />
         <button
           onClick={() => {
             handleMessageSend(fetchData, user, message, messages);
             setMessages([...messages, { user: message, bot: '' }]);
           }}
           disabled={loading}
-          className="py-2 px-4 bg-blue-500 text-white rounded-r-md ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {loading ? "Sending..." : "Send"}
+          {message ? <SendIcon className="text-blue-500" /> : (loading? <CircularProgress color="secondary" size={25} /> : null)}
         </button>
       </div>
     </div>

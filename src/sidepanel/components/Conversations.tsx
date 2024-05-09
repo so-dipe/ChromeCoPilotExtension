@@ -18,7 +18,7 @@ const Conversations: React.FC = () => {
 
   const fetchConversations = async () => {
     if (!user) return;
-    const dbInstance = new ConversationsDB(user.localId, 1);
+    const dbInstance = new ConversationsDB(user.localId);
     const fetchedConversations = await dbInstance.getConversations();
 
     // Sort conversations by lastUpdated

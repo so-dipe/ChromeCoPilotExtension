@@ -24,6 +24,11 @@ const TypewriterText = ({ text }) => {
   return <span>{displayedText}</span>;
 };
 
+const handleReset = (user) => { 
+  const db = new ConversationsDB(user.localId);
+  db.reset();
+}
+
 const ProfilePage: React.FC = () => {
   const user = useUserData();
   const time = new Date();
@@ -35,10 +40,6 @@ const ProfilePage: React.FC = () => {
     greeting = "Good Evening";
   } else {
     greeting = "Good Morning";
-  }
-
-  if (user) {
-    const db = new ConversationsDB(user.localId, 1);
   }
 
   return (
@@ -60,6 +61,7 @@ const ProfilePage: React.FC = () => {
           </div>
           <div className="font-semibold text-md w-70 cursor-pointer ">
             <NewChat />
+            <button onClick={() => handleReset(user)}>Reset</button>
             {/* <Logout /> */}
           </div>
         </div>
