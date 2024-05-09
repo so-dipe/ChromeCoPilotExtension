@@ -216,9 +216,7 @@ const ChatPage: React.FC = () => {
           }}
           disabled={loading}
         >
-          {message ? (
-            loading ? <CircularProgress color="secondary" size={25} /> : <SendIcon className="text-blue-500" />
-          ) : null }
+          {message ? <SendIcon className="text-blue-500" /> : (loading? <CircularProgress color="secondary" size={25} /> : null)}
         </button>
       </div>
     </div>
