@@ -10,6 +10,7 @@ import 'highlight.js/styles/github.css'
 import Avatar from '@mui/material/Avatar';
 import { useUserData } from '../hooks/chromeStorageHooks';
 import 'tailwindcss/tailwind.css';
+import Divider from '@mui/material/Divider';
 
 const renderer = new Renderer();
 
@@ -49,17 +50,20 @@ const Message: React.FC<Props> = ({ sender, content }) => {
         };
         parsedContent();
     }, [content]);
+
     return (
         <div className={`flex items-center ${sender === 'bot' ? 'ai' : 'user'}`}>
             {user && (
                 <div className="mr-2">
                     {sender === 'bot' ? <Avatar className="w-3 h-3">CCP</Avatar> : (
-                    user.photoUrl ? <Avatar className="w-3 h-3" src={user.photoUrl} /> : <Avatar className = "w-3 h-3">{user.fullName.charAt(0).toUpperCase()}</Avatar>
+                    user.photoUrl ? <Avatar className="w-3 h-3" src={user.photoUrl} /> : <Avatar className = "w-3 h-3">{user.displayName.charAt(0).toUpperCase()}</Avatar>
                     )}
                 </div>
             )}
             <div className="message-content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }} />
+            {/* <Divider /> */}
         </div>
+        
     )
 }
 

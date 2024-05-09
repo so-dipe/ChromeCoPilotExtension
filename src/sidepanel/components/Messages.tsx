@@ -5,7 +5,7 @@
 import React from 'react'
 import Message from './Message'
 import Divider from '@mui/material/Divider';
-import Paper from '@mui/material/Paper';
+// import Paper from '@mui/material/Paper';
 
 interface MessagePair {
     user: string;
@@ -16,7 +16,7 @@ interface Props {
     messages: MessagePair[];
 }
 
-const Messages: React.FC<Props> = ({messages}) => {
+const Messages: React.FC<Props> = ({ messages }) => {
     return (
         <div className='messages-container'>
             {messages.map((messagePair, index) => (
@@ -24,7 +24,7 @@ const Messages: React.FC<Props> = ({messages}) => {
                 <div key={index}>
                     <Message content={messagePair.user} sender="user" />
                     {messagePair.bot === '' ? <div></div> : <Message content={messagePair.bot} sender="bot" />}
-                    <Divider />
+                    {/* <Divider /> */}
                 </div>
                 // {/* </Paper> */}
             ))}
