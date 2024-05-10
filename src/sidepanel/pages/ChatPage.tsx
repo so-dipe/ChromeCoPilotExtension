@@ -1,23 +1,23 @@
 /* This is the component that renders the Chat Page. It contains chat messages and a input to send messages to the
  * server. It works closely with the Messages and StreamMessage Components
  */
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { useUserData } from '../hooks/chromeStorageHooks';
-import serverUrl from '../../static/config';
-import { ConversationsDB, DocumentsDB } from '../../db/db';
-import { useFetchData } from '../hooks/fetchResponseHook';
-import Messages from '../components/Messages';
-import OpenTabs from '../components/OpenTabs';
-import FileUpload from '../components/FileUpload';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { useUserData } from "../hooks/chromeStorageHooks";
+import serverUrl from "../../static/config";
+import { ConversationsDB, DocumentsDB } from "../../db/db";
+import { useFetchData } from "../hooks/fetchResponseHook";
+import Messages from "../components/Messages";
+import OpenTabs from "../components/OpenTabs";
+import FileUpload from "../components/FileUpload";
 import "tailwindcss/tailwind.css";
-import ProfileButton from '../components/ProfileButton'
-import ChatDocuments from '../components/ChatDocuments';
-import SendIcon from '@mui/icons-material/Send';
-import { CircularProgress } from '@mui/material';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
+import ProfileButton from "../components/ProfileButton";
+import ChatDocuments from "../components/ChatDocuments";
+import SendIcon from "@mui/icons-material/Send";
+import { CircularProgress } from "@mui/material";
+import { TextareaAutosize } from "@mui/base/TextareaAutosize";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -33,18 +33,16 @@ const messagePairsToList = (messages) => {
 const generateConversationTitle = async (fetchData, user, messagePair) => {
   const params = new URLSearchParams({
     prompt: messagePair.user,
-    response: messagePair.bot
+    response: messagePair.bot,
   });
   const url = `${serverUrl}/api/v1/messaging/get_chat_title?${params.toString()}`;
   await fetchData(url, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${user.idToken}`,
-    }
+    },
   });
-}
-
-
+};
 
 const sendMessage = async (fetchData, user, message, messages) => {
   const url = `${serverUrl}/api/v1/messaging/stream_response`;
@@ -57,7 +55,7 @@ const sendMessage = async (fetchData, user, message, messages) => {
     body: JSON.stringify({
       message: message,
       history: messagePairsToList(messages),
-    })
+    }),
   });
 };
 
@@ -67,13 +65,13 @@ const ChatPage: React.FC = () => {
   const { response, error, loading, fetchData } = useFetchData();
   // const [conversation, setConversation] = useState<any>(null);
   const [db, setDb] = useState<any>(null);
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
   const [docsDb, setDocsDb] = useState<any>(null);
-  const [botResponse, setBotResponse] = useState<string>('');
+  const [botResponse, setBotResponse] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [title, setTitle] = useState<string>('UNTITLED');
+  const [title, setTitle] = useState<string>("UNTITLED");
   const [titleGen, setTitleGen] = useState<boolean>(false);
   const [showDocuments, setShowDocuments] = useState(false);
   const textareaRef = useRef(null);
@@ -84,15 +82,15 @@ const ChatPage: React.FC = () => {
     // setConversation(conversation);
     setMessages(conversation.messages);
     setTitle(conversation.title);
-    if (conversation.title !== 'UNTITLED') {
+    if (conversation.title !== "UNTITLED") {
       setTitleGen(true);
-    } 
+    }
     setDb(db);
   };
 
-  const handleMessageSend = async (fetchData, user, message, messages) => { 
+  const handleMessageSend = async (fetchData, user, message, messages) => {
     if (textareaRef.current) {
-      textareaRef.current.value = '';
+      textareaRef.current.value = "";
     }
     if (!selectedTab) {
       return sendMessage(fetchData, user, message, messages);
@@ -102,7 +100,7 @@ const ChatPage: React.FC = () => {
     if (chunks.length === 0) {
       return sendMessage(fetchData, user, message, messages);
     }
-    let context = '';
+    let context = "";
     for (const chunk of chunks) {
       context += chunk;
     }
@@ -110,25 +108,35 @@ const ChatPage: React.FC = () => {
     return sendMessage(fetchData, user, context, messages);
   };
 
-  const handleShowDocsClick = () => { 
+  const handleShowDocsClick = () => {
     setShowDocuments(!showDocuments);
   };
 
   useEffect(() => {
     const typewriter = setInterval(() => {
-      if (!botResponse) { return; }
+      if (!botResponse) {
+        return;
+      }
       if (currentIndex < botResponse.length) {
         setMessages((prevMessages) => {
           const updatedMessages = [...prevMessages];
-          const lastMessage = { ...updatedMessages[updatedMessages.length - 1] };
-          const newMessage = { ...lastMessage, bot: lastMessage.bot + botResponse[currentIndex] };
-          return [...updatedMessages.slice(0, updatedMessages.length - 1), newMessage];
+          const lastMessage = {
+            ...updatedMessages[updatedMessages.length - 1],
+          };
+          const newMessage = {
+            ...lastMessage,
+            bot: lastMessage.bot + botResponse[currentIndex],
+          };
+          return [
+            ...updatedMessages.slice(0, updatedMessages.length - 1),
+            newMessage,
+          ];
         });
         setCurrentIndex(currentIndex + 1);
       } else {
         clearInterval(typewriter);
         setCurrentIndex(0);
-        setBotResponse('');
+        setBotResponse("");
       }
     }, 20);
 
@@ -139,35 +147,45 @@ const ChatPage: React.FC = () => {
     if (user) {
       fetchConversation();
     }
-  }, [user])
+  }, [user]);
 
-  useEffect(() => { 
+  useEffect(() => {
     const db = new DocumentsDB();
     setDocsDb(db);
 
-    return () => { db.close()}
+    return () => {
+      db.close();
+    };
   }, []);
 
   useEffect(() => {
-    if (title === 'UNTITLED' && messages.length > 0 && botResponse && !titleGen) {
+    if (
+      title === "UNTITLED" &&
+      messages.length > 0 &&
+      botResponse &&
+      !titleGen
+    ) {
       const messagePair = {
         user: messages[0].user,
-        bot: botResponse
-      }
+        bot: botResponse,
+      };
       generateConversationTitle(fetchData, user, messagePair);
       setTitleGen(true);
     }
-  }, [messages])
-
+  }, [messages]);
 
   useEffect(() => {
     const readResponse = async () => {
       try {
-        if (!response) { return; }
-        if (!db) { return; }
-        if (response.url.indexOf('get_chat_title') !== -1) {
+        if (!response) {
+          return;
+        }
+        if (!db) {
+          return;
+        }
+        if (response.url.indexOf("get_chat_title") !== -1) {
           response.json().then((data) => {
-            setTitle(data.text)
+            setTitle(data.text);
             db.updateConversationTitle(chatId, data.text);
           });
           return;
@@ -192,7 +210,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <div className="flex items-center p-1">
+      <div className="flex items-center p-1 cursor-pointer">
         <ProfileButton />
         <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
       </div>
@@ -204,26 +222,40 @@ const ChatPage: React.FC = () => {
         {<Messages messages={messages} />}
         {/* {error && <div>Error: {error.message}</div>} */}
       </div>
-      {error && <Alert severity='error'><AlertTitle>Error</AlertTitle>{error.message}</Alert>}
-      <div className="p-1 flex items-center">
+      {error && (
+        <Alert severity="error">
+          <AlertTitle>Error</AlertTitle>
+          {error.message}
+        </Alert>
+      )}
+      <div className="p-1 w-full justify-between flex items-center">
         <TextareaAutosize
           ref={textareaRef}
-          className="w-80 text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
+          className="w-[90%] text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
           aria-label="empty textarea"
           placeholder="Chat with Chrome CoPilot..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           maxRows={10}
         />
-        <FileUpload chatId={chatId} />
+        <div className="hover:cursor-pointer hover:bg-slate-500 hover:text-black rounded-full p-2 m-1  shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 ">
+          <FileUpload chatId={chatId} />
+        </div>
+
         <button
+          className="hover:cursor-pointer"
           onClick={() => {
             handleMessageSend(fetchData, user, message, messages);
-            setMessages([...messages, { user: message, bot: '' }]);
+            setMessages([...messages, { user: message, bot: "" }]);
+            setMessage("");
           }}
           disabled={loading}
         >
-          {message ? <SendIcon className="text-blue-500" /> : (loading? <CircularProgress color="secondary" size={25} /> : null)}
+          {message ? (
+            <SendIcon className="text-blue-500" />
+          ) : loading ? (
+            <CircularProgress color="secondary" size={25} />
+          ) : null}
         </button>
       </div>
     </div>
