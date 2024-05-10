@@ -43,7 +43,7 @@ const Conversations: React.FC = () => {
   };
 
   return (
-    <div className="shadow-2xl bg-gray-200 h-[55%] p-4 w-full   rounded-t-3xl">
+    <div className="shadow-2xl bg-gray-200  p-4 w-full   rounded-t-3xl">
       <p className="mb-5 text-center text-lg font-bold">Past Conversations</p>
       {conversations.map((conv) => (
         <Conversation

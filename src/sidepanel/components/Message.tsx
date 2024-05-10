@@ -117,14 +117,17 @@ const Message: React.FC<Props> = ({ sender, content }) => {
                  {getCurrentTime()}
               </span>
             </div> */}
-            <p className="text-sm font-normal py-2 text-gray-900 dark:text-white">
+            <div
+              style={{ overflowX: "auto" }}
+              className="text-sm font-normal p-2 text-gray-900 dark:text-white"
+            >
               <div
                 className="message-content"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(htmlContent),
                 }}
               />
-            </p>
+            </div>
           </div>
         </div>
       )}
