@@ -8,8 +8,10 @@ import Divider from '@mui/material/Divider';
 // import Paper from '@mui/material/Paper';
 
 interface MessagePair {
-    user: string;
-    bot: string;
+    user?: string;
+    bot?: string;
+    type: string;
+    file: any;
 }
 
 interface Props {
@@ -20,13 +22,12 @@ const Messages: React.FC<Props> = ({ messages }) => {
     return (
         <div className='messages-container'>
             {messages.map((messagePair, index) => (
-                // <Paper elevation={3} square={false}>
-                <div key={index}>
-                    <Message content={messagePair.user} sender="user" />
-                    {messagePair.bot === '' ? <div></div> : <Message content={messagePair.bot} sender="bot" />}
-                    {/* <Divider /> */}
-                </div>
-                // {/* </Paper> */}
+                (messagePair.type === 'message') ? (
+                    <div key={index}>
+                        <Message content={messagePair.user} sender="user" />
+                        {messagePair.bot === '' ? <div></div> : <Message content={messagePair.bot} sender="bot" />}
+                    </div>
+                ) : (messagePair.type === 'file') ? (<div key={ index}>{messagePair.file.name} { messagePair.file.size / 1024}</div>) : null
             ))}
         </div>
     )

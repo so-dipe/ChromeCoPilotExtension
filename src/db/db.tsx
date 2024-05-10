@@ -59,7 +59,7 @@ class ConversationsDB {
                 store.createIndex('id', 'id', { unique: true });
                 store.createIndex('title', 'title', { unique: false });
                 store.createIndex('lastUpdated', 'lastUpdated', { unique: false });
-                store.createIndex('messages', 'messages', { unique: false });
+                store.createIndex('messages', 'messages', { unique: false, multiEntry: true });
                 store.createIndex('docsId', 'docsId', { unique: false, multiEntry: true });
             };
         });
@@ -118,6 +118,8 @@ class ConversationsDB {
         if (!messagePair.user && !messagePair.bot) {
             throw new Error('Message pair must have a user and bot message');
         } 
+        messagePair.type = 'message';
+        console.log(messagePair);
         return new Promise((resolve, reject) => {
             this.open().then(() => {
                 const transaction = this.db.transaction('conversations', 'readwrite');
@@ -144,6 +146,37 @@ class ConversationsDB {
                 };
             });
         });
+    }
+
+    async appendFile(conversationId: string, file: any, id: string): Promise<void> { 
+        return new Promise((resolve, reject) => {
+            this.open().then(() => {
+                const transaction = this.db.transaction('conversations', 'readwrite');
+                const store = transaction.objectStore('conversations');
+                const request = store.get(conversationId);
+
+                request.onerror = () => {
+                    reject(request.error);
+                }
+
+                request.onsuccess = () => {
+                    const conversation = request.result;
+                    conversation.messages.push({
+                        type: 'file',
+                        file: file,
+                        id: id
+                    })
+                    conversation.lastUpdated = Date.now();
+                    const updateRequest = store.put(conversation);
+                    updateRequest.onerror = () => {
+                        reject(updateRequest.error)
+                    }
+                    updateRequest.onsuccess = () => {
+                        resolve();
+                    }
+                }
+            })
+        })
     }
 
     async createConversation(id): Promise<boolean> {
@@ -211,7 +244,6 @@ class ConversationsDB {
 
                 request.onsuccess = () => {
                     const conversation = request.result;
-                    console.log("add document", conversation, docId);
                     conversation.docsId.push(docId);
                     const updateRequest = store.put(conversation);
 

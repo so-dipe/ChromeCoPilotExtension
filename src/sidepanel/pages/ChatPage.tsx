@@ -2,6 +2,7 @@
  * server. It works closely with the Messages and StreamMessage Components
  */
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import serverUrl from "../../static/config";
@@ -12,7 +13,6 @@ import OpenTabs from "../components/OpenTabs";
 import FileUpload from "../components/FileUpload";
 import "tailwindcss/tailwind.css";
 import ProfileButton from "../components/ProfileButton";
-import ChatDocuments from "../components/ChatDocuments";
 import SendIcon from "@mui/icons-material/Send";
 import { CircularProgress } from "@mui/material";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
@@ -63,7 +63,6 @@ const ChatPage: React.FC = () => {
   const user = useUserData();
   const chatId = useParams<{ chatId: string }>().chatId;
   const { response, error, loading, fetchData } = useFetchData();
-  // const [conversation, setConversation] = useState<any>(null);
   const [db, setDb] = useState<any>(null);
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
@@ -73,13 +72,12 @@ const ChatPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [title, setTitle] = useState<string>("UNTITLED");
   const [titleGen, setTitleGen] = useState<boolean>(false);
-  const [showDocuments, setShowDocuments] = useState(false);
-  const textareaRef = useRef(null);
+  const [sentMessage, setSentMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
     const conversation = await db.getConversation(chatId);
-    // setConversation(conversation);
     setMessages(conversation.messages);
     setTitle(conversation.title);
     if (conversation.title !== "UNTITLED") {
@@ -89,9 +87,6 @@ const ChatPage: React.FC = () => {
   };
 
   const handleMessageSend = async (fetchData, user, message, messages) => {
-    if (textareaRef.current) {
-      textareaRef.current.value = "";
-    }
     if (!selectedTab) {
       return sendMessage(fetchData, user, message, messages);
     }
@@ -109,7 +104,7 @@ const ChatPage: React.FC = () => {
   };
 
   const handleShowDocsClick = () => {
-    setShowDocuments(!showDocuments);
+    navigate('/chat/' + chatId + '/contexts');
   };
 
   useEffect(() => {
@@ -200,13 +195,20 @@ const ChatPage: React.FC = () => {
           result += new TextDecoder().decode(value);
           setBotResponse(result);
         }
-        db.appendMessagePair(chatId, { user: message, bot: result });
+        db.appendMessagePair(chatId, { user: sentMessage, bot: result, type: 'message' });
       } catch (error) {
         console.error("Error reading response:", error);
       }
     };
     readResponse();
   }, [response]);
+
+  useEffect(() => {
+    if (!sentMessage) { return; }
+    setMessage("");
+    setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
+    handleMessageSend(fetchData, user, sentMessage, messages);
+  }, [sentMessage]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -224,7 +226,6 @@ const ChatPage: React.FC = () => {
           </div>
           <div className="p-2 bg-slate-900 text-center rounded-lg text-white">
             <button onClick={handleShowDocsClick}>View Documents</button>
-            {showDocuments && <ChatDocuments chatId={chatId} />}
           </div>
         </div>
 
@@ -239,7 +240,6 @@ const ChatPage: React.FC = () => {
       )}
       <div className="p-1 w-full justify-between flex items-center">
         <TextareaAutosize
-          ref={textareaRef}
           className="w-[90%] text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
           aria-label="empty textarea"
           placeholder="Chat with Chrome CoPilot..."
@@ -248,15 +248,16 @@ const ChatPage: React.FC = () => {
           maxRows={10}
         />
         <div className="hover:cursor-pointer hover:bg-slate-500 hover:text-black rounded-full p-2 m-1  shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 ">
-          <FileUpload chatId={chatId} />
+          <FileUpload chatId={chatId} setMessages={setMessages}/>
         </div>
 
         <button
           className="hover:cursor-pointer"
-          onClick={() => {
-            handleMessageSend(fetchData, user, message, messages);
-            setMessages([...messages, { user: message, bot: "" }]);
-            setMessage("");
+          onClick={async () => {
+            setSentMessage(message);
+            // setMessage("");
+            // setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
+            // handleMessageSend(fetchData, user, sentMessage, messages);
           }}
           disabled={loading}
         >

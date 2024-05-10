@@ -12,6 +12,7 @@ import {
 import WelcomePage from './pages/WelcomePage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
+import ContextsPage from './pages/ContextsPage';
 
 const container = document.createElement('div');
 document.body.appendChild(container);
@@ -29,7 +30,11 @@ const router = createHashRouter([
     {
         path: "chat/:chatId",
         element: <ChatPage />,
-    }
+  },
+  {
+      path: "chat/:chatId/contexts",
+      element: <ContextsPage />,
+  }
   ]);
 
 root.render(

@@ -37,12 +37,13 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
       if (selectedTab?.id === tabId) {
         setSelectedTab(null);
       }
+      console.log("Tab removed", tabId);
       docsDb.deleteDocument(tabId);
       db && db.removeDocumentFromConversation(chatId, tabId.toString());
     };
     chrome.tabs.onRemoved.addListener(handleTabRemove);
     return () => {
-      chrome.tabs.onRemoved.removeListener(handleTabRemove);
+      // chrome.tabs.onRemoved.removeListener(handleTabRemove);
     };
   }, [docsDb, selectedTab, db, chatId]);
 
@@ -70,7 +71,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
 
     return () => {
       chrome.tabs.onUpdated.removeListener(updateTabs);
-      chrome.tabs.onRemoved.removeListener(updateTabs);
+      // chrome.tabs.onRemoved.removeListener(updateTabs);
       chrome.tabs.onActivated.removeListener(updateCurrentTab);
     };
   }, []);

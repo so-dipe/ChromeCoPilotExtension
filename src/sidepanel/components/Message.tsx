@@ -8,6 +8,8 @@ import { useUserData } from "../hooks/chromeStorageHooks";
 import "tailwindcss/tailwind.css";
 import Divider from "@mui/material/Divider";
 import { FaCopy } from "react-icons/fa";
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 
 const renderer = new Renderer();
 
@@ -80,27 +82,6 @@ const Message: React.FC<Props> = ({ sender, content }) => {
         sender === "bot" ? "ai" : "user"
       }  m-1`}
     >
-      {/* {user && (
-        <div className="m-2">
-          {sender === "bot" ? (
-            <div className={`p-2 text-sm rounded-full bg-slate-500 `}>
-              <p>CCP</p>
-            </div>
-          ) : user.photoUrl ? (
-            <Avatar className="w-3 h-3" src={user.photoUrl} />
-          ) : (
-            <Avatar className="w-3 h-3">
-              {user.displayName.charAt(0).toUpperCase()}
-            </Avatar>
-          )}
-        </div>
-      )}
-      <div
-        className="message-content"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }}
-      /> */}
-      {/* <Divider /> */}
-      <div></div>
       {user && (
         <div className={`flex   ${order}  `}>
           <div
@@ -108,21 +89,18 @@ const Message: React.FC<Props> = ({ sender, content }) => {
           >
             <div className="p-1 text-gray-900 ">
               {sender === "bot" ? (
-                <p className={` text-sm  `}>Chrome Copilot</p>
+                // <p className={` text-sm  `}>Chrome Copilot</p>
+                <Chip avatar={<Avatar>C</Avatar>} label="Chrome CoPilot" />
               ) : user.lastName ? (
-                <p>You </p>
+                  <Chip
+                    avatar={<Avatar alt={user.lastName} src={user.photoUrl} />}
+                    label={user.lastName}
+                    variant="outlined"
+                  />
               ) : (
-                <span className={`p-2 text-sm rounded-full bg-slate-500 `}>
-                  <p>You </p>
-                </span>
+                    <Chip avatar={<Avatar>Y</Avatar>} label="You" />
               )}
             </div>
-            <div className=""></div>
-            {/* <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                 {getCurrentTime()}
-              </span>
-            </div> */}
             <div
               style={{ overflowX: "auto" }}
               className="text-sm font-normal p-2 text-gray-900 "
