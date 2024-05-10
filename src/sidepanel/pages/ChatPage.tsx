@@ -215,9 +215,18 @@ const ChatPage: React.FC = () => {
         <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
       </div>
       <div className="flex-1 overflow-y-auto p-1">
-        <OpenTabs chatId={chatId} onSelectTab={(tab) => setSelectedTab(tab)} />
-        <button onClick={handleShowDocsClick}>View Documents</button>
-        {showDocuments && <ChatDocuments chatId={chatId} />}
+        <div className="flex flex-row justify-between sticky top-0 bg-white">
+          <div className="w-[65%]">
+            <OpenTabs
+              chatId={chatId}
+              onSelectTab={(tab) => setSelectedTab(tab)}
+            />
+          </div>
+          <div className="p-2 bg-slate-900 text-center rounded-lg text-white">
+            <button onClick={handleShowDocsClick}>View Documents</button>
+            {showDocuments && <ChatDocuments chatId={chatId} />}
+          </div>
+        </div>
 
         {<Messages messages={messages} />}
         {/* {error && <div>Error: {error.message}</div>} */}
