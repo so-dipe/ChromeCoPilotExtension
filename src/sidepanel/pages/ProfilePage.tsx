@@ -62,10 +62,10 @@ const ProfilePage: React.FC = () => {
           <div className="font-semibold text-md w-70 cursor-pointer ">
             <NewChat />
             <button onClick={() => handleReset(user)}>Reset</button>
-            {/* <Logout /> */}
           </div>
         </div>
       )}
+      <Logout />
       <Conversations />
     </div>
   );

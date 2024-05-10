@@ -5,6 +5,8 @@
 import React from 'react';
 import serverUrl from '../../static/config';
 import { useNavigate } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import GoogleIcon from '@mui/icons-material/Google';
 
 function fetchUserfromFirebase(token: string, navigate: any) {
     fetch(`${serverUrl}/auth/oauth/google/get_user`, {
@@ -74,8 +76,11 @@ const LoginOptions: React.FC = () => {
     }
     const handleEmailandPasswordLogin = () => {}
   return (
-    <div>
-      <button onClick={handleGoogleLogin}>Continue with Google</button>
+     <div>
+          <Button variant="outlined" startIcon={<GoogleIcon />} onClick={handleGoogleLogin}>
+              Continue with Google
+          </Button>
+      {/* <button onClick={handleGoogleLogin}>Continue with Google</button> */}
     </div>
   );
 };

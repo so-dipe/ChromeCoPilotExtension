@@ -106,17 +106,7 @@ const WelcomePage: React.FC = () => {
           darkMode ? "bg-gray-800" : "bg-gray-200"
         } h-[60%]`}
       >
-        <div
-          className={`w-[80%] text-center p-2 text-xl transition-all duration-500 ease-in-out ${
-            darkMode
-              ? "bg-blue-700 hover:bg-blue-800"
-              : "bg-blue-500 hover:bg-blue-600"
-          } ${
-            darkMode ? "hover:text-white" : "hover:text-black"
-          } rounded-xl hover:rounded-sm`}
-        >
-          <LoginOptions />
-        </div>
+        <LoginOptions />
         <p className={`text-xl p-3 ${darkMode ? "text-white" : "text-black"}`}>
           or
         </p>
