@@ -9,7 +9,7 @@ import "tailwindcss/tailwind.css";
 import Divider from "@mui/material/Divider";
 import { FaCopy } from "react-icons/fa";
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
+import './../assets/fonts.css';
 
 const renderer = new Renderer();
 
@@ -87,9 +87,8 @@ const Message: React.FC<Props> = ({ sender, content }) => {
           <div
             className={`flex flex-col w-full min-w-[270px] text-gray-900   p-2 border-gray-200 ${order} `}
           >
-            <div className="p-1 text-gray-900 ">
+            <div className="p-1 text-gray-900 nunito-one">
               {sender === "bot" ? (
-                // <p className={` text-sm  `}>Chrome Copilot</p>
                 <Chip avatar={<Avatar>C</Avatar>} label="Chrome CoPilot" />
               ) : user.lastName ? (
                   <Chip
@@ -106,7 +105,7 @@ const Message: React.FC<Props> = ({ sender, content }) => {
               className="text-sm font-normal p-2 text-gray-900 "
             >
               <div
-                className="message-content"
+                className="message-content lexend-one"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(htmlContent),
                 }}

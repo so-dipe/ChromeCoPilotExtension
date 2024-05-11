@@ -18,6 +18,7 @@ import { CircularProgress } from "@mui/material";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import { retrieve_contexts } from "../utils/retrival";
 
 const messagePairsToList = (messages) => {
   if (!Array.isArray(messages)) {
@@ -59,6 +60,20 @@ const sendMessage = async (fetchData, user, message, messages) => {
   });
 };
 
+const filterMessages = (messages, limit = null) => { 
+  let filteredMessages = [];
+  messages.map(message => {
+    if (message.type === 'message') {
+      filteredMessages.push(message);
+    }
+  })
+  if (limit) {
+    return filteredMessages.slice(-limit);
+  }
+  console.log(filteredMessages);
+  return filteredMessages;
+}
+
 const ChatPage: React.FC = () => {
   const user = useUserData();
   const chatId = useParams<{ chatId: string }>().chatId;
@@ -95,7 +110,7 @@ const ChatPage: React.FC = () => {
     if (chunks.length === 0) {
       return sendMessage(fetchData, user, message, messages);
     }
-    let context = "";
+    let context = `From chrome tab - ${selectedTab.title}: `;
     for (const chunk of chunks) {
       context += chunk;
     }
@@ -207,7 +222,7 @@ const ChatPage: React.FC = () => {
     if (!sentMessage) { return; }
     setMessage("");
     setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
-    handleMessageSend(fetchData, user, sentMessage, messages);
+    handleMessageSend(fetchData, user, sentMessage, filterMessages(messages));
   }, [sentMessage]);
 
   return (
