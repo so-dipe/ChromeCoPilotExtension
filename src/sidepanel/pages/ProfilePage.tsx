@@ -5,6 +5,7 @@ import NewChat from "../components/NewChat";
 import { ConversationsDB } from "../../db/db";
 import Conversations from "../components/Conversations";
 import "tailwindcss/tailwind.css";
+import { FiRefreshCcw } from "react-icons/fi";
 
 const TypewriterText = ({ text }) => {
   const [displayedText, setDisplayedText] = useState("");
@@ -24,10 +25,10 @@ const TypewriterText = ({ text }) => {
   return <span>{displayedText}</span>;
 };
 
-const handleReset = (user) => { 
+const handleReset = (user) => {
   const db = new ConversationsDB(user.localId);
   db.reset();
-}
+};
 
 const ProfilePage: React.FC = () => {
   const user = useUserData();
@@ -43,30 +44,40 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="relative pt-5 flex flex-col items-center justify-between h-screen">
-      {user && (
-        <div>
-          <div className="mb-8 text-center">
-            {user.photoUrl && (
-              <img
-                src={user.photoUrl}
-                alt="Profile"
-                className="rounded-full h-24 w-24 mx-auto"
-              />
-            )}
-            <h2 className="text-2xl mb-5 font-semibold text-gray-800">
-              <TypewriterText text={`${greeting}, ${user.firstName}`} />
-            </h2>
-            <p>what would you like to do </p>
-          </div>
-          <div className="font-semibold text-md w-70 cursor-pointer ">
-            <NewChat />
-            <button onClick={() => handleReset(user)}>Reset</button>
-          </div>
-        </div>
-      )}
+    <div>
       <Logout />
-      <Conversations />
+      <div className="relative pt-5 flex flex-col items-center justify-between h-screen">
+        {user && (
+          <div>
+            <div className="mb-8 text-center">
+              {user.photoUrl && (
+                <img
+                  src={user.photoUrl}
+                  alt="Profile"
+                  className="rounded-full h-24 w-24 mx-auto"
+                />
+              )}
+              <h2 className="text-2xl mb-5 font-semibold text-gray-800">
+                <TypewriterText text={`${greeting}, ${user.firstName}`} />
+              </h2>
+              <p>what would you like to do </p>
+            </div>
+            <div className="font-semibold text-md w-70 cursor-pointer ">
+              <NewChat />
+            </div>
+          </div>
+        )}
+
+        {/* <button
+          className="flex items-center justify-center p-2 bg-blue-500 rounded-md shadow-md mr-2 text-white font-bold hover:bg-blue-600 hover:shadow-lg transition duration-300"
+          onClick={() => handleReset(user)}
+        >
+          <FiRefreshCcw className="w-4 h-4 mr-2" />
+          Reset
+        </button> */}
+
+        <Conversations />
+      </div>
     </div>
   );
 };

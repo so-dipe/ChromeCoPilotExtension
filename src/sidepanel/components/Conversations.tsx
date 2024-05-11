@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ConversationsDB } from "../../db/db";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import Conversation from "./Conversation";
+import { FiRefreshCcw } from "react-icons/fi";
 
 const formatDate = (dateString: string) => {
   const messageDate = new Date(dateString);
@@ -78,19 +79,37 @@ const Conversations: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!db) return;
 
-    // Delete conversation
     await db.deleteConversation(id);
 
-    // Update conversations state after deleting
     setConversations(conversations.filter((conv) => conv.id !== id));
+  };
+
+  const handleReset = (user) => {
+    const db = new ConversationsDB(user.localId);
+    db.reset();
+    // const convoDiv = document.getElementById("convo");
+    // if (convoDiv) {
+    //   convoDiv.innerHTML = "";
+    // }
   };
 
   return (
     <div className="shadow-2xl bg-gray-200 p-4 w-full rounded-t-3xl">
-      <p className="mb-5 text-center text-lg font-bold">Past Conversations</p>
+      <div className="flex flex-row items-center mb-5">
+        <button
+          onClick={() => handleReset(user)}
+          className="mr-auto  text-red-300 hover:text-red-600"
+        >
+          <FiRefreshCcw className="w-5 h-5" />
+        </button>
+        <p className="text-center text-lg font-bold flex-grow">
+          Past Conversations
+        </p>
+      </div>
+
       {groupedConversations.map(([date, convGroup]) => (
-        <div key={date}>
-          <p className="text-gray-500 text-sm mb-2">{date}</p>
+        <div id="convo" key={date}>
+          <p className="text-gray-500 text-sm mb-2 ml-7">{date}</p>
           {convGroup.map((conv) => (
             <Conversation
               key={conv.id}

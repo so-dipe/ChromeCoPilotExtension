@@ -1,11 +1,10 @@
 /**
  * Logout.tsx
- * A lowly logout button
+ * A cooler logout button with Tailwind CSS
  */
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import LogoutIcon from '@mui/icons-material/Logout';
-import { Button } from "@mui/material";
+import { FiLogOut } from "react-icons/fi"; // Importing an example icon from react-icons library
 
 const Logout: React.FC = () => {
   const navigate = useNavigate();
@@ -17,17 +16,24 @@ const Logout: React.FC = () => {
 
   return (
     <div>
-      <Button variant="outlined" startIcon={<LogoutIcon />} onClick={handleLogout}>
-        Logout
-      </Button>
-      {/* <button
-        className="hover:bg-gray-200 p-3 border border-red-500 hover:shadow-lg rounded-xl font-bold text-red-500 hover:text-red-600"
+      <button
+        className="flex items-center justify-center p-2 bg-red-500 rounded-br-lg text-white font-bold hover:bg-red-600 transition duration-300"
         onClick={handleLogout}
       >
+        <FiLogOut className="w-4 h-4 mr-2" />
         Logout
-      </button> */}
+      </button>
     </div>
   );
 };
 
 export default Logout;
+
+{
+  /* <button
+        className="hover:bg-gray-200 p-3 border border-red-500 hover:shadow-lg rounded-xl font-bold text-red-500 hover:text-red-600"
+        onClick={handleLogout}
+      >
+        Logout
+      </button> */
+}
