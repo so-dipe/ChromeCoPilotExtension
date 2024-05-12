@@ -39,7 +39,7 @@ export const filterMessages = (messages, limit = null) => {
     return filteredMessages;
 }
 
-export const readStreamResponse = async (streamResponse, db, message, chatId, setBotResponse) => {
+export const readStreamResponse = async (streamResponse, db, message, chatId, setBotResponse, setStream) => {
     try {
         if (!streamResponse) {
             return;
@@ -47,6 +47,7 @@ export const readStreamResponse = async (streamResponse, db, message, chatId, se
         if (!db) {
             return;
         }
+        setStream(true)
         const reader = streamResponse.body.getReader();
         let result = "";
         while (true) {
@@ -57,7 +58,7 @@ export const readStreamResponse = async (streamResponse, db, message, chatId, se
             result += new TextDecoder().decode(value);
             setBotResponse(result);
         }
-        // console.log("Bot response:", result, "user message", message);
+        setStream(false);
         db.appendMessagePair(chatId, { user: message, bot: result, type: 'message' });
     } catch (error) {
         console.error("Error reading response:", error);

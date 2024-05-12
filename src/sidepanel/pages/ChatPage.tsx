@@ -13,11 +13,9 @@ import "tailwindcss/tailwind.css";
 import ProfileButton from "../components/ProfileButton";
 import SendMessage from "../components/SendMessage";
 import SendMessageError from "../components/SendMessageError";
-import Message from "../components/Message";
 import { readStreamResponse, sendMessage, generateConversationTitle } from "../utils/send_message_utils";
-import Skeleton from '@mui/material/Skeleton';
-import Chip from '@mui/material/Chip';
-import Avatar from "@mui/material/Avatar";
+import MessageSkeleton from "../components/MessageSkeleton";
+import LinearProgress from '@mui/material/LinearProgress';
 
 const ChatPage: React.FC = () => {
   const user = useUserData();
@@ -37,6 +35,7 @@ const ChatPage: React.FC = () => {
   const [streamError, setStreamError] = useState<Error>();
   const [streamLoading, setStreamLoading] = useState<boolean>(false);
   const profileMessage = useParams<{ message: string }>().message;
+  const [stream, setStream] = useState<boolean>(false);
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
@@ -84,7 +83,7 @@ const ChatPage: React.FC = () => {
           ];
         });
         setCurrentIndex(currentIndex + 1);
-      } else {
+      } else if (currentIndex >= botResponse.length && !stream) {
         clearInterval(typewriter);
         setCurrentIndex(0);
         setBotResponse("");
@@ -93,12 +92,6 @@ const ChatPage: React.FC = () => {
 
     return () => clearInterval(typewriter);
   }, [botResponse, messages]);
-
-  // useEffect(() => {
-  //   if (user) {
-  //     fetchConversation();
-  //   }
-  // }, [user]);
 
   useEffect(() => {
     if (
@@ -117,18 +110,26 @@ const ChatPage: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    readStreamResponse(streamResponse, db, message, chatId, setBotResponse);
+    readStreamResponse(streamResponse, db, message, chatId, setBotResponse, setStream);
   }, [streamResponse]);
 
   useEffect(() => {
     if (!response) return;
     if (response.url.indexOf("get_chat_title") !== -1) {
       response.json().then((data) => {
-        setTitle(data.text);
+        if (data.text.lenght > 10) {
+          const title = message.slice(0, 5)
+          setTitle(title);
+          db.updateConversationTitle(chatId, title);
+        } else {
+          setTitle(data.text);
+          db.updateConversationTitle(chatId, data.text);
+        }
+        setTitle(title);
         db.updateConversationTitle(chatId, data.text);
       });
     } else if (response.url.indexOf("stream_response") !== -1) { 
-      readStreamResponse(response, db, message, chatId, setBotResponse);
+      readStreamResponse(response, db, message, chatId, setBotResponse, setStream);
     }
   }, [response])
 
@@ -152,14 +153,12 @@ const ChatPage: React.FC = () => {
         </div>
 
         {<Messages messages={messages} />}
-        {streamLoading && 
-          <Skeleton>
-            <Chip avatar={<Avatar></Avatar>}/>
-          </Skeleton>
-        }
+        {streamLoading && <MessageSkeleton />}
+        
       </div>
       {streamError && <SendMessageError error={streamError} />}
-      <SendMessage chatId={chatId} messages={messages} setMessages={setMessages} setError={setStreamError} setResponse={setStreamResponse} onSendMessage={setMessage} setLoading={setStreamLoading}/>
+      <SendMessage chatId={chatId} messages={messages} setMessages={setMessages} setError={setStreamError} setResponse={setStreamResponse} onSendMessage={setMessage} setLoading={setStreamLoading} />
+      {loading && <LinearProgress color="secondary" />}
     </div>
   );
 };
