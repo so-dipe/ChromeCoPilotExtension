@@ -13,6 +13,7 @@ import WelcomePage from './pages/WelcomePage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
 import ContextsPage from './pages/ContextsPage';
+import Conversations from './components/Conversations';
 
 const container = document.createElement('div');
 document.body.appendChild(container);
@@ -24,17 +25,25 @@ const router = createHashRouter([
       element: <WelcomePage />,
     },
     {
-        path: "profile",
-        element: <ProfilePage />,
+      path: "profile",
+      element: <ProfilePage />,
     },
     {
-        path: "chat/:chatId",
-        element: <ChatPage />,
-  },
-  {
+      path: "chat/:chatId",
+      element: <ChatPage />,
+    },
+    {
       path: "chat/:chatId/contexts",
       element: <ContextsPage />,
-  }
+    },
+    {
+      path: "chat/:chatId/:message",
+      element: <ChatPage />
+    },
+    {
+      path: "conversations",
+      element: <Conversations />
+    }    
   ]);
 
 root.render(

@@ -84,6 +84,13 @@ const Conversations: React.FC = () => {
     setConversations(conversations.filter((conv) => conv.id !== id));
   };
 
+  const handleRename = async (id: string, title: string) => {
+    if (!db) return;
+    await db.updateConversationTitle(id, title)
+    const conversations = await db.getConversations()
+    setConversations(conversations);
+  }
+
   const handleReset = (user) => {
     const db = new ConversationsDB(user.localId);
     db.reset();
@@ -115,6 +122,7 @@ const Conversations: React.FC = () => {
               key={conv.id}
               conversation={conv}
               onDelete={handleDelete}
+              onRename={handleRename}
             />
           ))}
         </div>

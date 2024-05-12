@@ -2,7 +2,7 @@
  * LoginOptions.tsx
  * A component to handle different forms of login and store user data to chrome.storage.local
  */
-import React from 'react';
+import React, { useState } from 'react';
 import serverUrl from '../../static/config';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -24,16 +24,15 @@ function fetchUserfromFirebase(token: string, navigate: any) {
      }
     })
     .then ((data) => {
-        console.log(data);
         chrome.storage.local.set({ user: data }, () => {
             console.log('User data saved');
         });
-        chrome.storage.local.set({ token: data.idToken }, () => {
-            console.log('User data saved');
-        })
-        chrome.storage.local.set({ refreshToken: data.refreshToken }, () => {
-            console.log('User data saved');
-        })
+        // chrome.storage.local.set({ token: data.idToken }, () => {
+        //     console.log('User data saved');
+        // })
+        // chrome.storage.local.set({ refreshToken: data.refreshToken }, () => {
+        //     console.log('User data saved');
+        // })
         chrome.storage.local.set({ isLoggedIn: true });
         navigate('profile');
     })
@@ -43,8 +42,47 @@ function fetchUserfromFirebase(token: string, navigate: any) {
     });
 }
 
+const emailLogin = (email: string, password: string, navigate: any) => { 
+    fetch(`${serverUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+    })
+    .then((response) => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(`Failed to login: ${response.statusText}`);
+        }
+    })
+    .then((data) => {
+        console.log(data);
+        chrome.storage.local.set({ user: data }, () => {
+            console.log('User data saved');
+        });
+        // chrome.storage.local.set({ token: data.idToken }, () => {
+        //     console.log('User data saved');
+        // });
+        // chrome.storage.local.set({ refreshToken: data.refreshToken }, () => {
+        //     console.log('User data saved');
+        // });
+        chrome.storage.local.set({ isLoggedIn: true });
+        navigate('profile');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        navigate('/');
+    });
+};
+
+// const emailSignup = (email: string, password: string, navigate: any) => { };
+
 const LoginOptions: React.FC = () => {
     const navigate = useNavigate();
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
     
     const handleGoogleLogin = () => {
         const width = 500;
@@ -80,7 +118,22 @@ const LoginOptions: React.FC = () => {
           <Button variant="outlined" startIcon={<GoogleIcon />} onClick={handleGoogleLogin}>
               Continue with Google
           </Button>
-      {/* <button onClick={handleGoogleLogin}>Continue with Google</button> */}
+          {/* <button onClick={handleGoogleLogin}>Continue with Google</button> */}
+            <div>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+              <button onClick={handleEmailandPasswordLogin}>Login</button>
+          </div>
     </div>
   );
 };

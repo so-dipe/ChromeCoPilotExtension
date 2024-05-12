@@ -5,6 +5,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { RiPushpin2Line, RiDeleteBinLine, RiEdit2Line } from "react-icons/ri";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { More } from "@mui/icons-material";
 
 interface ConversationProps {
   id: string;
@@ -15,10 +19,13 @@ interface ConversationProps {
 interface Props {
   conversation: ConversationProps;
   onDelete: (id: string) => void;
+  onRename: (id: string, title: string) => void;
 }
 
-const Conversation: React.FC<Props> = ({ conversation, onDelete }) => {
+const Conversation: React.FC<Props> = ({ conversation, onDelete, onRename }) => {
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   const handleConversationClick = () => {
     navigate(`/chat/${conversation.id}`);
@@ -28,25 +35,25 @@ const Conversation: React.FC<Props> = ({ conversation, onDelete }) => {
     onDelete(id);
   };
 
+  const handleMoreClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  }
+  const handleMoreClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div id="convo" className="flex flex-col items-center">
       <div className="conversation-title">
         <div className="hover:bg-gray-200 cursor-pointer flex flex-row justify-between items-center mb-2 py-2 px-5 hover:shadow-lg w-64 rounded-xl font-bold text-green-500 hover:text-green-600 border border-green-500">
           <h3 onClick={handleConversationClick}>{conversation.title}</h3>
-          <div className="flex flex-row">
-            <div className="transform hover:scale-105 hover:-translate-y-1">
-              <RiEdit2Line size={18} color="green" />
-            </div>
-            <div
-              className="px-3 transform hover:scale-105 hover:-translate-y-1"
-              onClick={() => handleDeleteClick(conversation.id)}
-            >
-              <RiDeleteBinLine size={18} color="red" />
-            </div>
-            <div className="transform hover:scale-105 hover:-translate-y-1">
-              <RiPushpin2Line size={18} color="blue" />
-            </div>
-          </div>
+          <button onClick={handleMoreClick}>
+            <MoreVertIcon />
+          </button>
+          <Menu open={open} anchorEl={anchorEl} onClose={handleMoreClose}>
+            <MenuItem>Rename</MenuItem>
+            <MenuItem onClick={() => handleDeleteClick(conversation.id)} >Delete</MenuItem>
+          </Menu>
         </div>
       </div>
     </div>

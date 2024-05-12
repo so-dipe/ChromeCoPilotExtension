@@ -5,90 +5,38 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useUserData } from "../hooks/chromeStorageHooks";
-import serverUrl from "../../static/config";
 import { ConversationsDB, DocumentsDB } from "../../db/db";
 import { useFetchData } from "../hooks/fetchResponseHook";
 import Messages from "../components/Messages";
 import OpenTabs from "../components/OpenTabs";
-import FileUpload from "../components/FileUpload";
 import "tailwindcss/tailwind.css";
 import ProfileButton from "../components/ProfileButton";
-import SendIcon from "@mui/icons-material/Send";
-import { CircularProgress } from "@mui/material";
-import { TextareaAutosize } from "@mui/base/TextareaAutosize";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
-import { retrieve_contexts } from "../utils/retrival";
-
-const messagePairsToList = (messages) => {
-  if (!Array.isArray(messages)) {
-    throw new Error("Messages must be an array");
-  }
-
-  return messages.flatMap((messagePair) => [
-    { role: "user", content: messagePair.user },
-    { role: "model", content: messagePair.bot },
-  ]);
-};
-
-const generateConversationTitle = async (fetchData, user, messagePair) => {
-  const params = new URLSearchParams({
-    prompt: messagePair.user,
-    response: messagePair.bot,
-  });
-  const url = `${serverUrl}/api/v1/messaging/get_chat_title?${params.toString()}`;
-  await fetchData(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${user.idToken}`,
-    },
-  });
-};
-
-const sendMessage = async (fetchData, user, message, messages) => {
-  const url = `${serverUrl}/api/v1/messaging/stream_response`;
-  await fetchData(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${user.idToken}`,
-    },
-    body: JSON.stringify({
-      message: message,
-      history: messagePairsToList(messages),
-    }),
-  });
-};
-
-const filterMessages = (messages, limit = null) => { 
-  let filteredMessages = [];
-  messages.map(message => {
-    if (message.type === 'message') {
-      filteredMessages.push(message);
-    }
-  })
-  if (limit) {
-    return filteredMessages.slice(-limit);
-  }
-  console.log(filteredMessages);
-  return filteredMessages;
-}
+import SendMessage from "../components/SendMessage";
+import SendMessageError from "../components/SendMessageError";
+import Message from "../components/Message";
+import { readStreamResponse, sendMessage, generateConversationTitle } from "../utils/send_message_utils";
+import Skeleton from '@mui/material/Skeleton';
+import Chip from '@mui/material/Chip';
+import Avatar from "@mui/material/Avatar";
 
 const ChatPage: React.FC = () => {
   const user = useUserData();
   const chatId = useParams<{ chatId: string }>().chatId;
   const { response, error, loading, fetchData } = useFetchData();
   const [db, setDb] = useState<any>(null);
-  const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
-  const [docsDb, setDocsDb] = useState<any>(null);
+  // const docsDb = new DocumentsDB();
   const [botResponse, setBotResponse] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [title, setTitle] = useState<string>("UNTITLED");
   const [titleGen, setTitleGen] = useState<boolean>(false);
-  const [sentMessage, setSentMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
+  const [streamResponse, setStreamResponse] = useState<any>();
+  const [streamError, setStreamError] = useState<Error>();
+  const [streamLoading, setStreamLoading] = useState<boolean>(false);
+  const profileMessage = useParams<{ message: string }>().message;
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
@@ -101,22 +49,15 @@ const ChatPage: React.FC = () => {
     setDb(db);
   };
 
-  const handleMessageSend = async (fetchData, user, message, messages) => {
-    if (!selectedTab) {
-      return sendMessage(fetchData, user, message, messages);
-    }
-    const tabId = selectedTab.id;
-    const chunks = await docsDb.searchDocumentChunks(tabId, message);
-    if (chunks.length === 0) {
-      return sendMessage(fetchData, user, message, messages);
-    }
-    let context = `From chrome tab - ${selectedTab.title}: `;
-    for (const chunk of chunks) {
-      context += chunk;
-    }
-    context += message;
-    return sendMessage(fetchData, user, context, messages);
-  };
+  useEffect(() => { 
+    if (!user) return;
+    fetchConversation().then(() => {
+      if (!profileMessage) return;
+      setMessage(profileMessage);
+      setMessages([...messages, { user: profileMessage, bot: "", type: 'message' }]);
+      sendMessage(fetchData, user, profileMessage, []);
+    });   
+  }, [profileMessage, user]);
 
   const handleShowDocsClick = () => {
     navigate('/chat/' + chatId + '/contexts');
@@ -153,20 +94,11 @@ const ChatPage: React.FC = () => {
     return () => clearInterval(typewriter);
   }, [botResponse, messages]);
 
-  useEffect(() => {
-    if (user) {
-      fetchConversation();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const db = new DocumentsDB();
-    setDocsDb(db);
-
-    return () => {
-      db.close();
-    };
-  }, []);
+  // useEffect(() => {
+  //   if (user) {
+  //     fetchConversation();
+  //   }
+  // }, [user]);
 
   useEffect(() => {
     if (
@@ -185,45 +117,20 @@ const ChatPage: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    const readResponse = async () => {
-      try {
-        if (!response) {
-          return;
-        }
-        if (!db) {
-          return;
-        }
-        if (response.url.indexOf("get_chat_title") !== -1) {
-          response.json().then((data) => {
-            setTitle(data.text);
-            db.updateConversationTitle(chatId, data.text);
-          });
-          return;
-        }
-        const reader = response.body.getReader();
-        let result = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          }
-          result += new TextDecoder().decode(value);
-          setBotResponse(result);
-        }
-        db.appendMessagePair(chatId, { user: sentMessage, bot: result, type: 'message' });
-      } catch (error) {
-        console.error("Error reading response:", error);
-      }
-    };
-    readResponse();
-  }, [response]);
+    readStreamResponse(streamResponse, db, message, chatId, setBotResponse);
+  }, [streamResponse]);
 
   useEffect(() => {
-    if (!sentMessage) { return; }
-    setMessage("");
-    setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
-    handleMessageSend(fetchData, user, sentMessage, filterMessages(messages));
-  }, [sentMessage]);
+    if (!response) return;
+    if (response.url.indexOf("get_chat_title") !== -1) {
+      response.json().then((data) => {
+        setTitle(data.text);
+        db.updateConversationTitle(chatId, data.text);
+      });
+    } else if (response.url.indexOf("stream_response") !== -1) { 
+      readStreamResponse(response, db, message, chatId, setBotResponse);
+    }
+  }, [response])
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -245,44 +152,14 @@ const ChatPage: React.FC = () => {
         </div>
 
         {<Messages messages={messages} />}
-        {/* {error && <div>Error: {error.message}</div>} */}
+        {streamLoading && 
+          <Skeleton>
+            <Chip avatar={<Avatar></Avatar>}/>
+          </Skeleton>
+        }
       </div>
-      {error && (
-        <Alert severity="error">
-          <AlertTitle>Error</AlertTitle>
-          {error.message}
-        </Alert>
-      )}
-      <div className="p-1 w-full justify-between flex items-center">
-        <TextareaAutosize
-          className="w-[90%] text-sm font-normal font-sans leading-normal p-2 rounded-xl rounded-br-none shadow-lg shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 focus-visible:outline-0 box-border resize-none max-h-48"
-          aria-label="empty textarea"
-          placeholder="Chat with Chrome CoPilot..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          maxRows={10}
-        />
-        <div className="hover:cursor-pointer hover:bg-slate-500 hover:text-black rounded-full p-2 m-1  shadow-slate-100 dark:shadow-slate-900 focus:shadow-outline-purple dark:focus:shadow-outline-purple focus:shadow-lg border border-solid border-slate-300 hover:border-purple-500 dark:hover:border-purple-500 focus:border-purple-500 dark:focus:border-purple-500 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 ">
-          <FileUpload chatId={chatId} setMessages={setMessages}/>
-        </div>
-
-        <button
-          className="hover:cursor-pointer"
-          onClick={async () => {
-            setSentMessage(message);
-            // setMessage("");
-            // setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
-            // handleMessageSend(fetchData, user, sentMessage, messages);
-          }}
-          disabled={loading}
-        >
-          {message ? (
-            <SendIcon className="text-blue-500" />
-          ) : loading ? (
-            <CircularProgress color="secondary" size={25} />
-          ) : null}
-        </button>
-      </div>
+      {streamError && <SendMessageError error={streamError} />}
+      <SendMessage chatId={chatId} messages={messages} setMessages={setMessages} setError={setStreamError} setResponse={setStreamResponse} onSendMessage={setMessage} setLoading={setStreamLoading}/>
     </div>
   );
 };
