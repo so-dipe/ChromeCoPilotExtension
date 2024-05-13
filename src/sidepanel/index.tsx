@@ -14,6 +14,8 @@ import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
 import ContextsPage from './pages/ContextsPage';
 import Conversations from './components/Conversations';
+import LLMProviderPage from './pages/LLMProviderPage';
+import SetUserPage from './pages/SetUserPage';
 
 const container = document.createElement('div');
 document.body.appendChild(container);
@@ -43,7 +45,15 @@ const router = createHashRouter([
     {
       path: "conversations",
       element: <Conversations />
-    }    
+    },
+    {
+      path: "api_provider",
+      element: <LLMProviderPage />
+    },
+    {
+      path: "set_user",
+      element: <SetUserPage />
+    }
   ]);
 
 root.render(

@@ -17,29 +17,13 @@ export const useFetchData = () => {
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const fetchData = async (url: string, options: FetchOptions = {}) => {
+    const fetchData = async (url: string, options: FetchOptions = {}, other?: any) => {
         setLoading(true);
         setError(null);
         setResponse(null);
         try {
             const response = await fetch(url, options);
-            if (response.status === 419) {
-                const idToken = await refreshIdToken();
-                options.headers['Authorization'] = `Bearer ${idToken}`;
-                const refreshedResponse = await fetch(url, options);
-                if (!refreshedResponse.ok) {
-                    console.log("something broke")
-                    throw new Error(`HTTP error ${refreshedResponse.status}`);
-                }
-                setResponse(refreshedResponse);
-                return;
-            } else if (response.status === 401) {
-                chrome.storage.local.clear();
-                return;
-            }
-            if (!response.ok) {
-                throw new Error(`HTTP error ${response.status}`)
-            }
+            await handleResponseError(url, response, options, setResponse);
             setResponse(response);
         } catch (error) {
             setError(error);
@@ -49,6 +33,26 @@ export const useFetchData = () => {
     };
 
     return {response, error, loading, fetchData};
+}
+
+const handleResponseError = async (url, response, options, setResponse) => {
+    if (response.status === 419) {
+        const idToken = await refreshIdToken();
+        options.headers['Authorization'] = `Bearer ${idToken}`;
+        const refreshedResponse = await fetch(url, options);
+        if (!refreshedResponse.ok) {
+            console.log("something broke")
+            throw new Error(`HTTP error ${refreshedResponse.status}`);
+        }
+        setResponse(refreshedResponse);
+        return;
+    } else if (response.status === 401) {
+        chrome.storage.local.clear();
+        return;
+    }
+    if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`)
+    }
 }
 
 const refreshIdToken: () => Promise<any> = () => {

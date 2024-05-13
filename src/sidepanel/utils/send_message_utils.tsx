@@ -41,13 +41,9 @@ export const filterMessages = (messages, limit = null) => {
 
 export const readStreamResponse = async (streamResponse, db, message, chatId, setBotResponse, setStream) => {
     try {
-        if (!streamResponse) {
-            return;
-        }
-        if (!db) {
-            return;
-        }
-        setStream(true)
+        if (!streamResponse) return;
+        if (!db) return;
+        setStream(true);
         const reader = streamResponse.body.getReader();
         let result = "";
         while (true) {
@@ -64,6 +60,30 @@ export const readStreamResponse = async (streamResponse, db, message, chatId, se
         console.error("Error reading response:", error);
     }
 };
+
+export const readGeminiStreamResponse = async (streamResponse, db, message, chatId, setBotResponse, setStream) => {
+    try {
+        if (!streamResponse) return;
+        if (!db) return;
+        setStream(true);
+        const reader = streamResponse.body.getReader();
+        let result = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            const decodedValue = new TextDecoder().decode(value);
+            const text = JSON.parse(decodedValue.substring(6, decodedValue.length));
+            result += text.candidates[0].content.parts[0].text
+            setBotResponse(result);
+        }
+        setStream(false);
+        db.appendMessagePair(chatId, { user: message, bot: result, type: 'message' });
+    } catch (error) {
+        console.error("error reading gemini stream:", error)
+    }
+}
 
 export const generateConversationTitle = async (fetchData, user, messagePair) => {
     const params = new URLSearchParams({

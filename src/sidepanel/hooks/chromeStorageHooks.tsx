@@ -29,29 +29,13 @@ export const useLoginStatus = () => {
   return isLoggedIn;
 };
 
-export const useToken = () => {
-  const [token, setToken] = useState<string | null>(null);
+export const useLLMProvider = () => {
+  const [llmProvider, setLLMProvider] = useState<any>(null);
 
   useEffect(() => {
-    chrome.storage.local.get('token', (data) => {
-      console.log(data)
-      const tokenFromStorage = data.token;
-      setToken(tokenFromStorage);
-    });
-  }, []);
-
-  return token;
-};
-
-export const useRefreshToken = () => {
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    chrome.storage.local.get('refreshToken', (data) => {
-      const refreshTokenFromStorage = data.refreshToken;
-      setRefreshToken(refreshTokenFromStorage);
-    });
-  }, []);
-
-  return refreshToken;
+    chrome.storage.local.get(['llmProvider'], (result) => {
+      setLLMProvider(result.llmProvider)
+    })
+  })
+  return llmProvider;
 }

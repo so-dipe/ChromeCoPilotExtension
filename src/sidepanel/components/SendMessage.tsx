@@ -5,7 +5,8 @@ import { CircularProgress } from "@mui/material";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { useFetchData } from "../hooks/fetchResponseHook";
 import { sendMessage, filterMessages } from '../utils/send_message_utils';
-import { useUserData } from "../hooks/chromeStorageHooks";
+import { useLLMProvider, useUserData } from "../hooks/chromeStorageHooks";
+import { generateWithAPI } from '../utils/basic_llm_router';
 
 interface SendMessageProps { 
     chatId: string;
@@ -22,13 +23,19 @@ const SendMessage: React.FC<SendMessageProps> = ({chatId, messages, setMessages,
     const [sentMessage, setSentMessage] = useState("");
     const { response, error, loading, fetchData } = useFetchData();
     const user = useUserData();
+    const llmProvider = useLLMProvider();
 
     useEffect(() => { 
         if (!sentMessage) return;
         onSendMessage(sentMessage);
         setMessage('');
         setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
-        sendMessage(fetchData, user, sentMessage, filterMessages(messages));
+        console.log(llmProvider);
+        if (llmProvider) {
+            generateWithAPI(fetchData, filterMessages(messages), sentMessage, llmProvider);
+        } else {
+            sendMessage(fetchData, user, sentMessage, filterMessages(messages));
+        }
     }, [sentMessage]);
 
     useEffect(() => {   

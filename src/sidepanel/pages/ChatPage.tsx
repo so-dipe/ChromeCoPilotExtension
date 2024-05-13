@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { useUserData } from "../hooks/chromeStorageHooks";
+import { useLLMProvider, useUserData } from "../hooks/chromeStorageHooks";
 import { ConversationsDB, DocumentsDB } from "../../db/db";
 import { useFetchData } from "../hooks/fetchResponseHook";
 import Messages from "../components/Messages";
@@ -13,9 +13,10 @@ import "tailwindcss/tailwind.css";
 import ProfileButton from "../components/ProfileButton";
 import SendMessage from "../components/SendMessage";
 import SendMessageError from "../components/SendMessageError";
-import { readStreamResponse, sendMessage, generateConversationTitle } from "../utils/send_message_utils";
+import { readStreamResponse, readGeminiStreamResponse, sendMessage, generateConversationTitle } from "../utils/send_message_utils";
 import MessageSkeleton from "../components/MessageSkeleton";
 import LinearProgress from '@mui/material/LinearProgress';
+import { generateTitle, generateWithAPI } from "../utils/basic_llm_router";
 
 const ChatPage: React.FC = () => {
   const user = useUserData();
@@ -36,6 +37,7 @@ const ChatPage: React.FC = () => {
   const [streamLoading, setStreamLoading] = useState<boolean>(false);
   const profileMessage = useParams<{ message: string }>().message;
   const [stream, setStream] = useState<boolean>(false);
+  const llmProvider = useLLMProvider();
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
@@ -54,7 +56,11 @@ const ChatPage: React.FC = () => {
       if (!profileMessage) return;
       setMessage(profileMessage);
       setMessages([...messages, { user: profileMessage, bot: "", type: 'message' }]);
-      sendMessage(fetchData, user, profileMessage, []);
+      if (llmProvider) {
+        generateWithAPI(fetchData, [], profileMessage, llmProvider);
+      } else {
+        sendMessage(fetchData, user, profileMessage, []);
+      }
     });   
   }, [profileMessage, user]);
 
@@ -87,10 +93,13 @@ const ChatPage: React.FC = () => {
           ];
         });
         setCurrentIndex(currentIndex + 1);
-      } else if (currentIndex >= botResponse.length && !stream) {
-        clearInterval(typewriter);
-        setCurrentIndex(0);
-        setBotResponse("");
+      } else if (currentIndex >= botResponse.length) {
+        if (stream) setCurrentIndex(currentIndex + 1)
+        else {
+          clearInterval(typewriter);
+          setCurrentIndex(0);
+          setBotResponse("");
+        }
       }
     }, 20);
 
@@ -108,13 +117,22 @@ const ChatPage: React.FC = () => {
         user: messages[0].user,
         bot: botResponse,
       };
-      generateConversationTitle(fetchData, user, messagePair);
+      if (!llmProvider) {
+        generateConversationTitle(fetchData, user, messagePair);
+      } else if (llmProvider.version.indexOf('gemini') !== -1) {
+        generateTitle(fetchData, messagePair, llmProvider);
+      }
+      
       setTitleGen(true);
     }
   }, [messages]);
 
   useEffect(() => {
-    readStreamResponse(streamResponse, db, message, chatId, setBotResponse, setStream);
+    if (!llmProvider) {
+      readStreamResponse(streamResponse, db, message, chatId, setBotResponse, setStream);
+    } else if (llmProvider.version.indexOf('gemini') !== -1) {
+      readGeminiStreamResponse(streamResponse, db, message, chatId, setBotResponse, setStream);
+    }
   }, [streamResponse]);
 
   useEffect(() => {
@@ -134,6 +152,21 @@ const ChatPage: React.FC = () => {
       });
     } else if (response.url.indexOf("stream_response") !== -1) { 
       readStreamResponse(response, db, message, chatId, setBotResponse, setStream);
+    } else if (response.url.indexOf(":streamGenerateContent?alt=sse&key") !== -1) {
+      readGeminiStreamResponse(response, db, message, chatId, setBotResponse, setStream);
+    } else if (response.url.indexOf(":generateContent?key=") !== -1) {
+      response.json().then(data => {
+        if (data.text.length > 10) {
+          const title = message.slice(0, 5)
+          setTitle(title);
+          db.updateConversationTitle(chatId, title);
+        } else {
+          setTitle(data.text);
+          db.updateConversationTitle(chatId, data.text);
+        }
+        setTitle(title);
+        db.updateConversationTitle(chatId, data.text);
+      })
     }
   }, [response])
 

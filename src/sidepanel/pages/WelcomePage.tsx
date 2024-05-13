@@ -52,6 +52,10 @@ const WelcomePage: React.FC = () => {
     setShowEmailLogin(false);
   };
 
+  const handleAPIKey = () => {
+    navigate('/api_provider');
+  }
+
   const handleEmailAndPasswordLogin = (password: string) => {
     fetch(`${serverUrl}/auth/login`, {
       method: "POST",
@@ -126,6 +130,7 @@ const WelcomePage: React.FC = () => {
         >
           continue with email
         </button>
+        <button onClick={handleAPIKey}>Continue with API Key</button>
       </div>
 
       {showEmailLogin && (

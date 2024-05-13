@@ -1,0 +1,23 @@
+import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const SetUserPage = () => {
+    const [displayName, setDisplayName] = useState<string>("");
+    const navigate = useNavigate();
+    
+    const handleSubmit = () => {
+        if (!displayName) return; 
+        chrome.storage.local.set({ 'user': { displayName: displayName, localId: displayName } }, () => { });
+        chrome.storage.local.set({ 'isLoggedIn': true }, () => { });
+        navigate('/profile');
+    }
+    
+    return (
+        <div>
+            <input type='text' placeholder='Enter a display name' onChange={(e) => {setDisplayName(e.target.value)}}/>
+            <button onClick={handleSubmit}>Submit</button>
+        </div>
+    )
+}
+
+export default SetUserPage;
