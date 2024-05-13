@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ConversationsDB } from "../../db/db";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import Conversation from "./Conversation";
@@ -42,6 +43,7 @@ const Conversations: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const user = useUserData();
   const [groupedConversations, setGroupedConversations] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchConversations();
@@ -100,8 +102,13 @@ const Conversations: React.FC = () => {
     // }
   };
 
+  const handleBackButton = () => {
+    navigate(-1);
+  }
+
   return (
     <div className="shadow-2xl bg-gray-200 p-4 w-full rounded-t-3xl">
+      <button onClick={handleBackButton}>Back</button>
       <div className="flex flex-row items-center mb-5">
         <button
           onClick={() => handleReset(user)}
