@@ -3,6 +3,8 @@ import { useUserData } from '../hooks/chromeStorageHooks';
 import { ConversationsDB } from '../../db/db';
 import Conversation from './Conversation';
 import { useNavigate } from 'react-router-dom';
+import '../assets/recent.css';
+import '../assets/fonts.css';
 
 const fetchConversations = async (user, setDb, setConversations) => {
     const dbInstance = new ConversationsDB(user.localId);
@@ -52,11 +54,23 @@ const Recent = () => {
     }, [conversations])
     
     return (
-        <div>
-            <button onClick={handleSeeMore}>See More</button>
-            {last5.map(conversation => {
-                return <Conversation conversation={conversation} onDelete={handleDelete} onRename={handleRename}/>
-            })}
+        <div className="container lexend-one">
+            <div className='header'>
+                <h2 className="heading lexend-six">Recent</h2>
+                <button className="button" onClick={handleSeeMore}>
+                    <span className="material-symbols-outlined">
+                        arrow_forward_ios
+                    </span>
+                </button>
+            </div>
+            {last5.map((conversation, index) => (
+                <Conversation
+                    conversation={conversation}
+                    onDelete={handleDelete}
+                    onRename={handleRename}
+                    key={index}
+                />
+            ))}
         </div>
     )
 }
