@@ -9,6 +9,8 @@ import { FiRefreshCcw } from "react-icons/fi";
 import ProfileSendMessage from "../components/ProfileSendMessage";
 import ProfileButton from "../components/ProfileButton";
 import Recent from "../components/Recent";
+import '../assets/profile-page.css';
+import '../assets/fonts.css';
 
 const getTime = (hour) => {
   if (hour >= 12 && hour < 18) {
@@ -31,9 +33,13 @@ const ProfilePage: React.FC = () => {
   const hour = time.getHours();
 
   return (
-    <div>
-      <div>{getTime(hour)}</div>
-      <ProfileButton />
+    <div className="container">
+      <div className="flex justify-between items-center">
+        <div className="jaro-one greeting">{getTime(hour)}</div>
+        <div className="ml-auto">
+          <ProfileButton />
+        </div>
+      </div>
       <div className="relative pt-5 flex flex-col items-center justify-between h-screen">
         {user && (
           <ProfileSendMessage />

@@ -1,0 +1,23 @@
+.container {
+    margin: 0;
+    padding: 2px;
+}
+
+body::-webkit-scrollbar {
+    width: 2px;
+    display: none;
+}
+
+body::-webkit-scrollbar-track {
+    background: #d10b0b;
+}
+
+.greeting {
+    font-size: 50px; 
+    transition: all 0.7 ease;
+}
+
+.greeting:hover {
+    color: #333;
+    cursor: default;
+}
