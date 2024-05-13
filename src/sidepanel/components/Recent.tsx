@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import { ConversationsDB } from "../../db/db";
+import { FaArrowRight } from "react-icons/fa";
 import Conversation from "./Conversation";
 import { useNavigate } from "react-router-dom";
 
@@ -53,7 +54,6 @@ const Recent = () => {
 
   return (
     <div>
-      <button onClick={handleSeeMore}>See More</button>
       {last5.map((conversation) => {
         return (
           <Conversation
@@ -63,6 +63,13 @@ const Recent = () => {
           />
         );
       })}
+      <div
+        onClick={handleSeeMore}
+        className="flex flex-row p-5 cursor-pointer text-green-700 hover:text-blue-700 items-center justify-start"
+      >
+        <button className=" mr-3">See all</button>
+        <FaArrowRight className="" />
+      </div>
     </div>
   );
 };

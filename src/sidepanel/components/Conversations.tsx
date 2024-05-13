@@ -119,7 +119,7 @@ const Conversations: React.FC = () => {
         </div>
         <div
           onClick={() => handleReset(user)}
-          className="flex flex-row items-center  text-red-500  hover:text-red-600"
+          className="flex flex-row items-center cursor-pointer  text-red-500  hover:text-red-600"
         >
           <div>
             <FaTrash className="" />
