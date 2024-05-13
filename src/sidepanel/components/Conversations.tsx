@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { ConversationsDB } from "../../db/db";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import Conversation from "./Conversation";
-import { FiRefreshCcw } from "react-icons/fi";
+import { FaArrowLeft } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
 const formatDate = (dateString: string) => {
   const messageDate = new Date(dateString);
@@ -88,10 +89,10 @@ const Conversations: React.FC = () => {
 
   const handleRename = async (id: string, title: string) => {
     if (!db) return;
-    await db.updateConversationTitle(id, title)
-    const conversations = await db.getConversations()
+    await db.updateConversationTitle(id, title);
+    const conversations = await db.getConversations();
     setConversations(conversations);
-  }
+  };
 
   const handleReset = (user) => {
     const db = new ConversationsDB(user.localId);
@@ -104,22 +105,37 @@ const Conversations: React.FC = () => {
 
   const handleBackButton = () => {
     navigate(-1);
-  }
+  };
 
   return (
-    <div className="shadow-2xl bg-gray-200 p-4 w-full rounded-t-3xl">
-      <button onClick={handleBackButton}>Back</button>
-      <div className="flex flex-row items-center mb-5">
-        <button
-          onClick={() => handleReset(user)}
-          className="mr-auto  text-red-300 hover:text-red-600"
+    <div className="shadow-2xl bg-gray-200 p-4 w-full h-screen rounded-t-3xl">
+      <div className="flex flex-row items-center justify-between mb-5 ">
+        <div
+          onClick={handleBackButton}
+          className="flex flex-row  cursor-pointer text-red-700 hover:text-red-900 items-center justify-start"
         >
-          <FiRefreshCcw className="w-5 h-5" />
-        </button>
+          <FaArrowLeft className=" mr-3 " />
+          <button className="">Back</button>
+        </div>
+        <div
+          onClick={() => handleReset(user)}
+          className="flex flex-row items-center  text-red-500  hover:text-red-600"
+        >
+          <div>
+            <FaTrash className="" />
+          </div>
+
+          <div className="px-2">
+            <button>Clear conversations</button>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="flex flex-row items-center mb-5">
         <p className="text-center text-lg font-bold flex-grow">
           Past Conversations
         </p>
-      </div>
+      </div> */}
 
       {groupedConversations.map(([date, convGroup]) => (
         <div id="convo" key={date}>

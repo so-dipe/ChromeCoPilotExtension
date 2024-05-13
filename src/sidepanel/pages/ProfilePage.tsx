@@ -18,7 +18,7 @@ const getTime = (hour) => {
   } else {
     return "Good Morning";
   }
-}
+};
 
 const handleReset = (user) => {
   const db = new ConversationsDB(user.localId);
@@ -29,17 +29,22 @@ const ProfilePage: React.FC = () => {
   const user = useUserData();
   const time = new Date();
   const hour = time.getHours();
+  console.log(user);
 
   return (
-    <div>
-      <div>{getTime(hour)}</div>
-      <ProfileButton />
-      <div className="relative pt-5 flex flex-col items-center justify-between h-screen">
-        {user && (
-          <ProfileSendMessage />
-        )}
+    <div className="p-5">
+      <div className="flex flex-row items-center">
+        <ProfileButton />
+        <div className="px-5">{getTime(hour)} </div>
       </div>
-      <Recent />
+
+      <div className="relative pt-5 flex flex-col items-center justify-between">
+        {user && <ProfileSendMessage />}
+      </div>
+      <p className="font-bold text-center mt-10 mb-5">Previous Conversations</p>
+      <div className="w-full">
+        <Recent />
+      </div>
     </div>
   );
 };
