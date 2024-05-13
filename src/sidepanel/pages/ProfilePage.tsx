@@ -32,10 +32,12 @@ const ProfilePage: React.FC = () => {
   console.log(user);
 
   return (
-    <div className="p-5">
-      <div className="flex flex-row items-center">
-        <ProfileButton />
-        <div className="px-5">{getTime(hour)} </div>
+    <div className="container-profilepage">
+      <div className="flex justify-between items-center">
+        <div className="jaro-one greeting">{getTime(hour)}</div>
+        <div className="ml-auto">
+          <ProfileButton />
+        </div>
       </div>
 
       <div className="relative pt-5 flex flex-col items-center justify-between">

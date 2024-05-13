@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
 
-.container {
+.container-recent {
     padding: 20px;
-    border: #ccc;
-    border-radius: 5px;
+    background-color: #eee;
+    border-radius: 20px;
 }
 
 .header {

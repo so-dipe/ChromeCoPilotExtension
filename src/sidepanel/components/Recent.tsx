@@ -43,35 +43,35 @@ const Recent = () => {
     navigate("/conversations");
   };
 
-  useEffect(() => {
-    if (!user) return;
-    fetchConversations(user, setDb, setConversations);
-  }, [user]);
-
-  useEffect(() => {
-    setLast5(conversations.slice(0, 5));
-  }, [conversations]);
-
-  return (
-    <div>
-      {last5.map((conversation) => {
-        return (
-          <Conversation
-            conversation={conversation}
-            onDelete={handleDelete}
-            onRename={handleRename}
-          />
-        );
-      })}
-      <div
-        onClick={handleSeeMore}
-        className="flex flex-row p-5 cursor-pointer text-green-700 hover:text-blue-700 items-center justify-start"
-      >
-        <button className=" mr-3">See all</button>
-        <FaArrowRight className="" />
-      </div>
-    </div>
-  );
-};
+    useEffect(() => { 
+        if (!user) return;
+        fetchConversations(user, setDb, setConversations);
+    }, [user])
+    
+    useEffect(() => {
+        setLast5(conversations.slice(0, 5))
+    }, [conversations])
+    
+    return (
+        <div className="container-recent lexend-one">
+            <div className='header'>
+                <h2 className="heading lexend-six">Recent</h2>
+                <button className="button" onClick={handleSeeMore}>
+                    <span className="material-symbols-outlined">
+                        arrow_forward_ios
+                    </span>
+                </button>
+            </div>
+            {last5.map((conversation, index) => (
+                <Conversation
+                    conversation={conversation}
+                    onDelete={handleDelete}
+                    onRename={handleRename}
+                    key={index}
+                />
+            ))}
+        </div>
+    )
+}
 
 export default Recent;

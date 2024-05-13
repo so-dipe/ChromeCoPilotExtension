@@ -5,32 +5,32 @@ import Avatar from '@mui/material/Avatar';
 import Backdrop from '@mui/material/Backdrop';
 import Logout from './Logout';
 import "tailwindcss/tailwind.css"; 
-import CloseIcon from '@mui/icons-material/Close';
-
+import '../assets/profile-action-card.css'
 
 const profileActionCard = (user, handleClose) => {
     return (
         <React.Fragment>
-            <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
-                <CloseIcon onClick={handleClose} />
-                <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
+            <div className='profile-modal'>
+                <button onClick={handleClose} className='close-button'>
+                    <span className="material-symbols-outlined">
+                        close
+                    </span>
+                </button>
+                <div className='profile-photo'>
                     {user.photoUrl ? (
-                        <img
-                            className="w-full h-full rounded-full"
+                        <img 
                             src={user.photoUrl}
                             alt="Profile"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center rounded-full bg-gray-200">
-                            <span className="text-gray-600 text-lg font-semibold">
+                        <div className='initials'>
+                            <span>
                                 {user.displayName.charAt(0).toUpperCase()}
                             </span>
                         </div>
                     )}
                 </div>
-                <div className="ml-4">
-                    <h1 className="text-lg font-semibold">{user.displayName}</h1>
-                </div>
+                <h1 className='display-name'>{user.displayName}</h1>
                 <div>
                     <Logout />
                 </div>
