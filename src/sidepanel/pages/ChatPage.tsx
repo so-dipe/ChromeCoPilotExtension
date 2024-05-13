@@ -62,6 +62,10 @@ const ChatPage: React.FC = () => {
     navigate('/chat/' + chatId + '/contexts');
   };
 
+  const handleBackButton = () => {
+    navigate(-1);
+  }
+
   useEffect(() => {
     const typewriter = setInterval(() => {
       if (!botResponse) {
@@ -117,7 +121,7 @@ const ChatPage: React.FC = () => {
     if (!response) return;
     if (response.url.indexOf("get_chat_title") !== -1) {
       response.json().then((data) => {
-        if (data.text.lenght > 10) {
+        if (data.text.length > 10) {
           const title = message.slice(0, 5)
           setTitle(title);
           db.updateConversationTitle(chatId, title);
@@ -136,7 +140,7 @@ const ChatPage: React.FC = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex items-center p-1 cursor-pointer">
-        <ProfileButton />
+        <button onClick={handleBackButton}>Back</button>
         <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
       </div>
       <div className="flex-1 overflow-y-auto p-1">
@@ -151,10 +155,8 @@ const ChatPage: React.FC = () => {
             <button onClick={handleShowDocsClick}>View Documents</button>
           </div>
         </div>
-
         {<Messages messages={messages} />}
         {streamLoading && <MessageSkeleton />}
-        
       </div>
       {streamError && <SendMessageError error={streamError} />}
       <SendMessage chatId={chatId} messages={messages} setMessages={setMessages} setError={setStreamError} setResponse={setStreamResponse} onSendMessage={setMessage} setLoading={setStreamLoading} />
