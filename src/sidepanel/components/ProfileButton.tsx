@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import Backdrop from '@mui/material/Backdrop';
 import Logout from './Logout';
 import "tailwindcss/tailwind.css"; 
-import '../assets/profile-action-card.css'
+import '../assets/profile-action-card.css';
 
 const profileActionCard = (user, handleClose) => {
     return (

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import { ConversationsDB } from "../../db/db";
-import { FaArrowRight } from "react-icons/fa";
 import Conversation from "./Conversation";
 import { useNavigate } from "react-router-dom";
+import '../assets/recent.css';
+import '../assets/fonts.css';
 
 const fetchConversations = async (user, setDb, setConversations) => {
   const dbInstance = new ConversationsDB(user.localId);
@@ -62,14 +63,14 @@ const Recent = () => {
                     </span>
                 </button>
             </div>
-            {last5.map((conversation, index) => (
+            {(conversations.length > 0) ? last5.map((conversation, index) => (
                 <Conversation
                     conversation={conversation}
                     onDelete={handleDelete}
                     onRename={handleRename}
                     key={index}
                 />
-            ))}
+            )) : <p>Nothing to see here</p>}
         </div>
     )
 }

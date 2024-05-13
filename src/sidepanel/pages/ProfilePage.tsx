@@ -9,6 +9,7 @@ import { FiRefreshCcw } from "react-icons/fi";
 import ProfileSendMessage from "../components/ProfileSendMessage";
 import ProfileButton from "../components/ProfileButton";
 import Recent from "../components/Recent";
+import '../assets/profile-page.css';
 
 const getTime = (hour) => {
   if (hour >= 12 && hour < 18) {
@@ -43,7 +44,6 @@ const ProfilePage: React.FC = () => {
       <div className="relative pt-5 flex flex-col items-center justify-between">
         {user && <ProfileSendMessage />}
       </div>
-      <p className="font-bold text-center mt-10 mb-5">Previous Conversations</p>
       <div className="w-full">
         <Recent />
       </div>
