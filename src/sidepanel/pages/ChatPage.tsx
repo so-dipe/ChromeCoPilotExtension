@@ -25,8 +25,6 @@ const ChatPage: React.FC = () => {
   const { response, error, loading, fetchData } = useFetchData();
   const [db, setDb] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
-  const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
-  // const docsDb = new DocumentsDB();
   const [botResponse, setBotResponse] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [title, setTitle] = useState<string>("UNTITLED");
@@ -39,6 +37,7 @@ const ChatPage: React.FC = () => {
   const profileMessage = useParams<{ message: string }>().message;
   const [stream, setStream] = useState<boolean>(false);
   const llmProvider = useLLMProvider();
+  const [pageError, setPageError] = useState<any>();
 
   const fetchConversation = async () => {
     const db = new ConversationsDB(user.localId);
@@ -50,6 +49,11 @@ const ChatPage: React.FC = () => {
     }
     setDb(db);
   };
+
+  useEffect(() => {
+    if (!error) return;
+    setPageError(error);
+  }, [error])
 
   useEffect(() => { 
     if (!user) return;
@@ -183,17 +187,6 @@ const ChatPage: React.FC = () => {
         <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
       </div>
       <div className="flex-1 overflow-y-auto p-1 messages-container">
-        {/* <div className="flex flex-row justify-between sticky top-0 bg-white">
-          <div className="w-[65%]">
-            <OpenTabs
-              chatId={chatId}
-              onSelectTab={(tab) => setSelectedTab(tab)}
-            />
-          </div>
-          <div className="p-2 bg-slate-900 text-center rounded-lg text-white">
-            <button onClick={handleShowDocsClick}>View Documents</button>
-          </div>
-        </div> */}
         {<Messages messages={messages} />}
         {streamLoading && <MessageSkeleton />}
       </div>

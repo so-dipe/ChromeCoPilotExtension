@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import FileUpload from "../components/FileUpload";
 import OpenTabs from "../components/OpenTabs";
-import SendIcon from "@mui/icons-material/Send";
 import { CircularProgress } from "@mui/material";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { useFetchData } from "../hooks/fetchResponseHook";

@@ -14,9 +14,9 @@ const ProfileSendMessage: React.FC = () => {
     navigate(`/chat/${chatId}/${message}`);
   };
   return (
-    <div className="container-send-message">
+    <div className="container-profile-send-message">
       <textarea
-        className="message-input"
+        className="profile-message-input"
         aria-label="empty textarea"
         placeholder="Chat with Chrome CoPilot..."
         value={message}
