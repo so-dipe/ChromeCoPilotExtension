@@ -17,6 +17,7 @@ import { readStreamResponse, readGeminiStreamResponse, sendMessage, generateConv
 import MessageSkeleton from "../components/MessageSkeleton";
 import LinearProgress from '@mui/material/LinearProgress';
 import { generateTitle, generateWithAPI } from "../utils/basic_llm_router";
+import '../assets/chat-page.css';
 
 const ChatPage: React.FC = () => {
   const user = useUserData();
@@ -156,16 +157,17 @@ const ChatPage: React.FC = () => {
       readGeminiStreamResponse(response, db, message, chatId, setBotResponse, setStream);
     } else if (response.url.indexOf(":generateContent?key=") !== -1) {
       response.json().then(data => {
-        if (data.text.length > 10) {
+        const text = data.candidates[0].content.parts[0].text
+        if (text.length > 10) {
           const title = message.slice(0, 5)
           setTitle(title);
           db.updateConversationTitle(chatId, title);
         } else {
-          setTitle(data.text);
-          db.updateConversationTitle(chatId, data.text);
+          setTitle(text);
+          db.updateConversationTitle(chatId, text);
         }
         setTitle(title);
-        db.updateConversationTitle(chatId, data.text);
+        db.updateConversationTitle(chatId, text);
       })
     }
   }, [response])
@@ -173,11 +175,15 @@ const ChatPage: React.FC = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex items-center p-1 cursor-pointer">
-        <button onClick={handleBackButton}>Back</button>
+        <button onClick={handleBackButton} className="back-button">
+          <span className="material-symbols-outlined">
+            arrow_back_ios
+          </span>
+        </button>
         <h2 className="text-lg font-semibold ml-4 self-center">{title}</h2>
       </div>
-      <div className="flex-1 overflow-y-auto p-1">
-        <div className="flex flex-row justify-between sticky top-0 bg-white">
+      <div className="flex-1 overflow-y-auto p-1 messages-container">
+        {/* <div className="flex flex-row justify-between sticky top-0 bg-white">
           <div className="w-[65%]">
             <OpenTabs
               chatId={chatId}
@@ -187,7 +193,7 @@ const ChatPage: React.FC = () => {
           <div className="p-2 bg-slate-900 text-center rounded-lg text-white">
             <button onClick={handleShowDocsClick}>View Documents</button>
           </div>
-        </div>
+        </div> */}
         {<Messages messages={messages} />}
         {streamLoading && <MessageSkeleton />}
       </div>

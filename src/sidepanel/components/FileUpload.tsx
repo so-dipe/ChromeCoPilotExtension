@@ -4,6 +4,7 @@ import { ConversationsDB, DocumentsDB } from '../../db/db';
 import { useUserData } from '../hooks/chromeStorageHooks';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import Messages from './Messages';
+import '../assets/file-upload.css';
 
 interface Props {
     chatId: string;
@@ -48,15 +49,16 @@ const FileUpload: React.FC<Props> = ({chatId, setMessages}) => {
     }, [fileContent]);
 
     return (
-        <label htmlFor="file-input" className="relative cursor-pointer">
+        <label htmlFor="file-input" className='file-upload-button'>
             <input
                 id="file-input"
                 type="file"
                 accept=".pdf,.docx,.doc,.txt"
                 onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0"
             />
-            <AttachFileIcon className="text-gray-600 w-8 h-8" />
+            <span className="material-symbols-outlined">
+                attach_file
+            </span>
         </label>
     );
 }

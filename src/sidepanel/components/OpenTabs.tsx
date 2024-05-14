@@ -7,6 +7,7 @@ import "tailwindcss/tailwind.css";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import "../assets/open-tabs.css";
 
 interface Props {
   chatId: string;
@@ -21,7 +22,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
   const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
   const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
-  const [docsDb, setDocsDb] = useState<any>(new DocumentsDB());
+  const docsDb = new DocumentsDB();
   const [db, setDb] = useState<ConversationsDB | null>(null);
   const user = useUserData();
 
@@ -38,7 +39,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
         setSelectedTab(null);
       }
       console.log("Tab removed", tabId);
-      docsDb.deleteDocument(tabId);
+      docsDb.deleteDocument(tabId.toString());
       db && db.removeDocumentFromConversation(chatId, tabId.toString());
     };
     chrome.tabs.onRemoved.addListener(handleTabRemove);
@@ -84,7 +85,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
 
     if (tab.url && tab.url.split(".").pop() === "pdf") {
       readPdfUrl(tab.url).then((result) => {
-        docsDb.storeDocument(tabId, tab.title, result);
+        docsDb.storeDocument(tabId.toString(), tab.title, result.text);
         db && db.addDocumentToConversation(chatId, tabId.toString());
       });
       return;
@@ -101,7 +102,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
         ) {
           const htmlContent = result[0].result;
           const htmlParsed = htmlParser(htmlContent);
-          docsDb.storeDocument(tabId, tab.title, htmlParsed);
+          docsDb.storeDocument(tabId.toString(), tab.title, htmlParsed);
           db && db.addDocumentToConversation(chatId, tabId.toString());
         }
       }
@@ -109,14 +110,14 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
   };
 
   return (
-    <div>
+    <div className="container-opentabs">
       <select
         onChange={(e) => handleTabSelect(e)}
         id="tabs"
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value=""
       >
-        <option defaultValue="" disabled>
-          Click here to pick a tab
+        <option defaultValue="">
+          Select a tab:
         </option>
         {tabs.map((tab) => (
           <option
@@ -130,8 +131,6 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
           </option>
         ))}
       </select>
-
-      {/* {selectedTab && <h4>Using tab: {selectedTab.title}</h4>} */}
     </div>
   );
 };

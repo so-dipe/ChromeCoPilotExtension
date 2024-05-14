@@ -12,7 +12,14 @@
 
 .close-button {
     align-self: flex-end;
-    margin-bottom: 10px;
+    margin-right: 5px;
+    font-size: 25px;
+    position: absolute;
+}
+
+.close-button span:hover {
+    background-color: #eee;
+    border-radius: 50%;
 }
 
 .profile-photo {
@@ -20,6 +27,7 @@
     height: 100px;
     border-radius: 50%;
     overflow: hidden;
+    margin-top: 10px;
 }
 
 .profile-photo img {
@@ -36,10 +44,15 @@
     height: 100%;
     border-radius: 50%;
     background-color: lightgray;
+    font-size: 60px;
+    font-weight: 600;
+    color: #fff;
 }
 
 .display-name {
     margin: 10px 0;
+    font-size: 25px;
+    font-weight: 800;
 }
 
 .logout-button button {
@@ -52,4 +65,21 @@
 
 .logout-button button:hover {
     background-color: gray;
+}
+
+.row-buttons {
+    background-color: #fefefe;
+}
+
+.row {
+    display: flex;
+    margin: 0;
+    padding: 10px;
+    margin-bottom: 2px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.row:hover {
+    background-color: #efefef;
 }

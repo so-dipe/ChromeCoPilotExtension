@@ -74,8 +74,13 @@ export const readGeminiStreamResponse = async (streamResponse, db, message, chat
                 break;
             }
             const decodedValue = new TextDecoder().decode(value);
-            const text = JSON.parse(decodedValue.substring(6, decodedValue.length));
-            result += text.candidates[0].content.parts[0].text
+            const jsonData = decodedValue.replace(/^data:\s*/, "");
+            try {
+                const jsonObject = JSON.parse(jsonData);
+                result += jsonObject.candidates[0].content.parts[0].text
+            } catch (error) {
+                console.error("Error parsing JSON:", error);
+            }
             setBotResponse(result);
         }
         setStream(false);

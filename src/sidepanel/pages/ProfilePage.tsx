@@ -21,16 +21,10 @@ const getTime = (hour) => {
   }
 };
 
-const handleReset = (user) => {
-  const db = new ConversationsDB(user.localId);
-  db.reset();
-};
-
 const ProfilePage: React.FC = () => {
   const user = useUserData();
   const time = new Date();
   const hour = time.getHours();
-  console.log(user);
 
   return (
     <div className="container-profilepage">
@@ -41,10 +35,10 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative pt-5 flex flex-col items-center justify-between">
+      <div className="relative pt-5 flex flex-col items-center justify-between profile-send-message">
         {user && <ProfileSendMessage />}
       </div>
-      <div className="w-full">
+      <div className="w-full mt-auto recent-container">
         <Recent />
       </div>
     </div>

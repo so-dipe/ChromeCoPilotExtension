@@ -1,0 +1,16 @@
+.container-opentabs {
+    overflow-x: hidden;
+    margin: 0;
+    max-width: 100%;
+}
+
+.container-opentabs select {
+    border: none;
+    appearance: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.container-opentabs select:focus {
+    outline: none;
+}

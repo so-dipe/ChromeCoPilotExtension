@@ -1,6 +1,9 @@
+import { messagePairsToList } from "./send_message_utils";
+
 const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models"
 
 const parseMessagesforGemini = (messages: any[], message: string) => {
+    messages = messagePairsToList(messages);
     let parsedMessages = []
     messages.forEach(msg => {
         parsedMessages.push({
@@ -21,6 +24,7 @@ const parseMessagesforGemini = (messages: any[], message: string) => {
 
 export const generateContent = async  (fetchData: any, message: string, messages: any[], geminiApi: string, version: string) => {
     messages = parseMessagesforGemini(messages, message);
+    console.log(messages)
     const url = `${geminiUrl}/${version}:streamGenerateContent?alt=sse&key=${geminiApi}`
     console.log("messages", JSON.stringify({contents: messages}));
     await fetchData(url, {

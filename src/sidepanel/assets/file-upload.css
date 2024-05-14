@@ -1,0 +1,20 @@
+@import url("https: //fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
+
+.file-upload-button {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.file-upload-button input[type="file"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+.file-upload-button span {
+    display: inline-block;
+    padding: 0px;
+    color: #000;
+    transition: background-color 0.3s, color 0.3s;
+}

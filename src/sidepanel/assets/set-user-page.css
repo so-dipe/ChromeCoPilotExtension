@@ -1,0 +1,27 @@
+.container-setuser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container-setuser button {
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.container-setuser input {
+    padding: 8px;
+    margin-top: 8px;
+    border: 1px solid #000;
+}
+
+.back-button {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+
+.back-button:hover {
+    background-color: #eee;
+    border-radius: 50%;
+}

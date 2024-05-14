@@ -4,6 +4,8 @@
  */
 import React from 'react'
 import Message from './Message'
+import File from './File';
+import '../assets/messages.css';
 import Divider from '@mui/material/Divider';
 // import Paper from '@mui/material/Paper';
 
@@ -27,7 +29,7 @@ const Messages: React.FC<Props> = ({ messages }) => {
                         <Message content={messagePair.user} sender="user" />
                         {messagePair.bot === '' ? <div></div> : <Message content={messagePair.bot} sender="bot" />}
                     </div>
-                ) : (messagePair.type === 'file') ? (<div key={ index}>{messagePair.file.name} { messagePair.file.size / 1024}</div>) : null
+                ) : (messagePair.type === 'file') ? <File key={index} file={messagePair.file}/> : null
             ))}
         </div>
     )

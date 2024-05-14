@@ -1,0 +1,25 @@
+@import url("https: //fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
+
+.container-send-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 0px;
+    position: relative;
+    max-height: 200px;
+    overflow: hidden;
+    margin: 1px;
+}
+
+.message-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    padding: 10px;
+    max-height: 200px;
+    overflow: auto;
+    font-size: 20px;
+}

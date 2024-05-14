@@ -1,0 +1,52 @@
+.container-llm-provider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container-llm-provider select {
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.container-llm-provider label {
+    margin-top: 8px;
+}
+
+.container-google {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container-google select {
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.container-google input {
+    border: 1px solid #555;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.container-google button {
+    padding: 8px;
+    margin-top: 8px;
+    background-color: #eee;
+}
+
+.container-google label {
+    margin-top: 8px;
+}
+
+.back-button {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+
+.back-button:hover {
+    background-color: #eee;
+    border-radius: 50%;
+}

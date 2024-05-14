@@ -10,6 +10,7 @@ import Divider from "@mui/material/Divider";
 import { FaCopy } from "react-icons/fa";
 import Chip from '@mui/material/Chip';
 import './../assets/fonts.css';
+import '../assets/message.css';
 
 const renderer = new Renderer();
 
@@ -26,7 +27,7 @@ renderer.code = (
 
   const languageWithoutPrefix = language ? language.replace("lang-", "") : "";
 
-  return `<pre><code class="hljs ${language}"><div>${languageWithoutPrefix}</div>${highlightedCode.value}</code></pre>`;
+  return `<div class="code-container"><div class="language-label">${languageWithoutPrefix}</div><pre><code class="hljs ${language}">${highlightedCode.value}</code></pre></div>`;
 };
 
 interface Props {
@@ -52,15 +53,6 @@ const Message: React.FC<Props> = ({ sender, content }) => {
     parsedContent();
   }, [content]);
 
-  const getCurrentTime = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    return `${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
-  };
-
-  const bubbleColor = sender === "bot" ? "bg-slate-500" : "bg-blue-500";
-
   const order =
     sender === "bot"
       ? "rounded-tl-none rounded-tr-xl rounded-br-xl rounded-bl-xl ring-inset ring-transparent "
@@ -78,31 +70,29 @@ const Message: React.FC<Props> = ({ sender, content }) => {
   };
   return (
     <div
-      className={`flex-row justify-end ${
-        sender === "bot" ? "ai" : "user"
-      }  m-1`}
+      className={`flex-row justify-end ${sender === "bot" ? "ai" : "user"} m-1`}
     >
       {user && (
-        <div className={`flex   ${order}  `}>
+        <div className={`flex ${order}`}>
           <div
-            className={`flex flex-col w-full min-w-[270px] text-gray-900   p-2 border-gray-200 ${order} `}
+            className={`flex flex-col w-full min-w-[270px] text-gray-900 p-1 border-gray-200 ${order}`}
           >
             <div className="p-1 text-gray-900 nunito-one">
               {sender === "bot" ? (
                 <Chip avatar={<Avatar>C</Avatar>} label="Chrome CoPilot" />
-              ) : user.lastName ? (
-                  <Chip
-                    avatar={<Avatar alt={user.lastName} src={user.photoUrl} />}
-                    label={user.lastName}
-                    variant="outlined"
-                  />
+              ) : user.displayName ? (
+                <Chip
+                  avatar={<Avatar alt={user.displayName} src={user.photoUrl} />}
+                  label={user.displayName}
+                  variant="outlined"
+                />
               ) : (
-                    <Chip avatar={<Avatar>Y</Avatar>} label="You" />
+                <Chip avatar={<Avatar>Y</Avatar>} label="You" />
               )}
             </div>
             <div
               style={{ overflowX: "auto" }}
-              className="text-sm font-normal p-2 text-gray-900 "
+              className="text-sm font-normal p-1 text-gray-900"
             >
               <div
                 className="message-content lexend-one"
@@ -111,7 +101,7 @@ const Message: React.FC<Props> = ({ sender, content }) => {
                 }}
               />
               {sender === "bot" ? (
-                <div className="mt-5">
+                <div className="mt-2">
                   <FaCopy
                     onClick={handleCopyClick}
                     style={{ cursor: "pointer" }}
@@ -119,7 +109,7 @@ const Message: React.FC<Props> = ({ sender, content }) => {
                 </div>
               ) : null}
             </div>
-            <div className="border-t border-gray-300 my-4"></div>
+            <div className="border-t border-gray-300 my-2"></div>
           </div>
         </div>
       )}

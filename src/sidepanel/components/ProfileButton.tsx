@@ -7,7 +7,7 @@ import Logout from './Logout';
 import "tailwindcss/tailwind.css"; 
 import '../assets/profile-action-card.css';
 
-const profileActionCard = (user, handleClose) => {
+const profileActionCard = (user, handleClose, handleLogout) => {
     return (
         <React.Fragment>
             <div className='profile-modal'>
@@ -31,8 +31,22 @@ const profileActionCard = (user, handleClose) => {
                     )}
                 </div>
                 <h1 className='display-name'>{user.displayName}</h1>
-                <div>
-                    <Logout />
+                <div className='row-buttons'>
+                    <div className='row'>
+                        <span className="material-symbols-outlined">
+                            person
+                        </span><p> Account</p>
+                    </div>
+                    <div className='row'>
+                        <span className="material-symbols-outlined">
+                            settings
+                        </span><p> Select LLM Provider</p>
+                    </div>
+                    <div className='row' onClick={handleLogout}>
+                        <span className="material-symbols-outlined">
+                            logout
+                        </span><p> Logout</p>
+                    </div>
                 </div>
             </div>
         </React.Fragment>
@@ -50,7 +64,12 @@ const ProfileButton: React.FC = () => {
 
     const handleClose = () => {
         setOpen(false);
-        console.log(open);
+    }
+
+    const handleLogout = () => {
+        chrome.storage.local.clear(() => {
+            navigate('/');
+        })
     }
 
     return (
@@ -60,7 +79,7 @@ const ProfileButton: React.FC = () => {
                     {user.photoUrl ? <Avatar src={user.photoUrl} /> : <Avatar>{user.displayName.charAt(0).toUpperCase()}</Avatar>}
                 </div>
                 <Backdrop open={open} sx={{ zIndex: 1 }}>
-                    {profileActionCard(user, handleClose)}
+                    {profileActionCard(user, handleClose, handleLogout)}
                 </Backdrop>
             </React.Fragment>
         )
