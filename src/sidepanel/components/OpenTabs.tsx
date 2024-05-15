@@ -44,7 +44,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
     };
     chrome.tabs.onRemoved.addListener(handleTabRemove);
     return () => {
-      // chrome.tabs.onRemoved.removeListener(handleTabRemove);
+      chrome.tabs.onRemoved.removeListener(handleTabRemove);
     };
   }, [docsDb, selectedTab, db, chatId]);
 
@@ -72,7 +72,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
 
     return () => {
       chrome.tabs.onUpdated.removeListener(updateTabs);
-      // chrome.tabs.onRemoved.removeListener(updateTabs);
+      chrome.tabs.onRemoved.removeListener(updateTabs);
       chrome.tabs.onActivated.removeListener(updateCurrentTab);
     };
   }, []);
@@ -103,7 +103,7 @@ const OpenTabs: React.FC<Props> = ({ chatId, onSelectTab }) => {
           const htmlContent = result[0].result;
           const htmlParsed = htmlParser(htmlContent);
           docsDb.storeDocument(tabId.toString(), tab.title, htmlParsed);
-          db && db.addDocumentToConversation(chatId, tabId.toString());
+          console.log(docsDb.getDocument(tabId.toString()))
         }
       }
     );

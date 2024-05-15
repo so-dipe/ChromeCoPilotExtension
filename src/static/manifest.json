@@ -10,12 +10,13 @@
     "host_permissions": [
         "http://localhost:8000/*",
         "https://chromecopilot-66au4vtdba-uc.a.run.app/*",
-        "file:///*/*"
+        "file:///*/*",
+        "https://generativelanguage.googleapis.com/*"
     ],
-    "optional_host_permissions":[
+    "optional_host_permissions": [
         "https://*/*",
         "http://*/*"
-      ],
+    ],
     "options_page": "options.html",
     "permissions": [
         "activeTab",

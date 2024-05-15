@@ -9,9 +9,10 @@ import '../assets/file-upload.css';
 interface Props {
     chatId: string;
     setMessages: any;
+    setFileUploaded: (status: boolean) => void;
 }
 
-const FileUpload: React.FC<Props> = ({chatId, setMessages}) => {
+const FileUpload: React.FC<Props> = ({chatId, setMessages, setFileUploaded}) => {
     const [fileContent, setFileContent] = useState<string | null>(null);
     const [filename, setFilename] = useState<string | null>(null);
     const [file, setFile] = useState<any>(null);
@@ -38,13 +39,14 @@ const FileUpload: React.FC<Props> = ({chatId, setMessages}) => {
 
     useEffect(() => { 
         if (fileContent) {
-            const docsId = chatId + new Date().getTime();
-            docsDB.storeDocument(docsId, filename, fileContent);
-            db && db.appendFile(chatId, file, docsId);
-            db && db.addDocumentToConversation(chatId, docsId);
+            const docId = chatId + new Date().getTime();
+            docsDB.storeDocument(docId, filename, fileContent);
+            db.appendFileToConversation(chatId, file, docId);
+            db.addDocumentToConversation(chatId, docId);
             setMessages((prevMessages) => {
                 return [...prevMessages, { type: 'file', file: file }];
             })
+            setFileUploaded(true);
         }
     }, [fileContent]);
 

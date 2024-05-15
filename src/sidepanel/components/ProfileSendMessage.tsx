@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../hooks/chromeStorageHooks";
-// import { TextareaAutosize } from "@mui/base/TextareaAutosize";
-import SendIcon from "@mui/icons-material/Send";
 import '../assets/profile-send-message.css';
 
 const ProfileSendMessage: React.FC = () => {

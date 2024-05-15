@@ -10,10 +10,11 @@ const fetchConversations = async (user, setDb, setConversations) => {
   const dbInstance = new ConversationsDB(user.localId);
   const fetchedConversations = await dbInstance.getConversations();
 
+  console.log(fetchedConversations);
   fetchedConversations.sort((a, b) => {
     const dateA = new Date(a.lastUpdated);
     const dateB = new Date(b.lastUpdated);
-    return dateB.getTime() - dateA.getTime(); // Descending order
+    return dateB.getTime() - dateA.getTime();
   });
 
   setDb(dbInstance);
@@ -44,12 +45,13 @@ const Recent = () => {
     navigate("/conversations");
   };
 
-    useEffect(() => { 
-        if (!user) return;
-        fetchConversations(user, setDb, setConversations);
-    }, [user])
+  useEffect(() => { 
+    if (!user) return;
+    fetchConversations(user, setDb, setConversations);
+  }, [user])
     
-    useEffect(() => {
+  useEffect(() => {
+    console.log(conversations);
         setLast5(conversations.slice(0, 5))
     }, [conversations])
     

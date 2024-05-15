@@ -10,7 +10,8 @@
     position: relative;
     max-height: 200px;
     overflow: hidden;
-    margin: 1px;
+    margin: 5px;
+    width: 100%;
 }
 
 .profile-message-input {

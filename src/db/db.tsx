@@ -148,7 +148,7 @@ class ConversationsDB {
         });
     }
 
-    async appendFile(conversationId: string, file: any, id: string): Promise<void> { 
+    async appendFileToConversation(conversationId: string, file: any, id: string): Promise<void> { 
         return new Promise((resolve, reject) => {
             this.open().then(() => {
                 const transaction = this.db.transaction('conversations', 'readwrite');
@@ -403,7 +403,6 @@ class DocumentsDB {
                     contentChunks: chunks,
                     ftIndex: JSON.stringify(index),
                 });
-                // transaction.objectStore('indexes').add({ index });
 
                 request.onerror = () => {
                     if (request.error.name !== 'ConstraintError') { 
@@ -428,7 +427,7 @@ class DocumentsDB {
         });
     }
 
-    async getDocument(id: number): Promise<any> { 
+    async getDocument(id: string): Promise<any> { 
         return new Promise((resolve, reject) => { 
             this.open().then(() => {
                 const transaction = this.db.transaction('documents', 'readonly');
@@ -450,7 +449,7 @@ class DocumentsDB {
         });
     }
 
-    async searchDocumentChunks(documentId: number, query: string): Promise<any[]> {
+    async searchDocumentChunks(documentId: string, query: string): Promise<any[]> {
         return new Promise((resolve, reject) => {
             this.open().then(() => {
                 const transaction = this.db.transaction('documents', 'readonly');
@@ -463,16 +462,20 @@ class DocumentsDB {
 
                 request.onsuccess = () => { 
                     const document = request.result;
-                    const index = lunr.Index.load(JSON.parse(document.ftIndex));
-                    const results = index.search(query);
-                    // if (results.length === 0) { 
-                    //     const firstChunk = document.contentChunks[0];
-                    //     const lastChunk = document.contentChunks[document.contentChunks.length - 1];
-                    //     const chunks = firstChunk + lastChunk;
-                    //     resolve([chunks]);
-                    // }
-                    const chunks = results.map((result) => document.contentChunks[result.ref]);
-                    resolve(chunks);
+                    console.log("Searching document", document, documentId, query)
+                    if (!document) { 
+                        reject(`Document with id: ${documentId} not found`);
+                    } else {
+                        const index = lunr.Index.load(JSON.parse(document.ftIndex));
+                        const results = index.search(query);
+                        console.log("Results", results)
+                        const chunks = results.map((result) => document.contentChunks[result.ref]);
+                        resolve(chunks);
+                    }
+                    // const index = lunr.Index.load(JSON.parse(document.ftIndex));
+                    // const results = index.search(query);
+                    // const chunks = results.map((result) => document.contentChunks[result.ref]);
+                    // resolve(chunks);
                 };
                 
             });

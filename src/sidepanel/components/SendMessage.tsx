@@ -7,6 +7,8 @@ import { useFetchData } from "../hooks/fetchResponseHook";
 import { sendMessage, filterMessages } from '../utils/send_message_utils';
 import { useLLMProvider, useUserData } from "../hooks/chromeStorageHooks";
 import { generateWithAPI } from '../utils/basic_llm_router';
+import { retrieve_contexts } from '../utils/retrival';
+import { ConversationsDB } from "../../db/db";
 import '../assets/send_message.css';
 
 interface SendMessageProps { 
@@ -19,25 +21,62 @@ interface SendMessageProps {
     onSendMessage: (message: string) => void;
 }
 
+const get_contexts = async (docsIds, selectedTab, message) => {
+    if (selectedTab) docsIds.push(selectedTab.id);
+    const contexts = await retrieve_contexts(docsIds, message);
+    let context = "";
+    contexts.forEach((cxt) => { context += cxt + " "});
+    return context;
+}
+
 const SendMessage: React.FC<SendMessageProps> = ({chatId, messages, setMessages, setResponse, setError, setLoading, onSendMessage}) => {
     const [message, setMessage] = useState("");
     const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab | null>(null);
     const [sentMessage, setSentMessage] = useState("");
+    const [db, setDb] = useState<any>(null);
+    const [docsId, setDocsId] = useState<string[]>([]); 
+    const [fileUploaded, setFileUploaded] = useState<boolean>(false);
     const { response, error, loading, fetchData } = useFetchData();
     const user = useUserData();
     const llmProvider = useLLMProvider();
 
     useEffect(() => { 
+        if (user) {
+            const db = new ConversationsDB(user.localId);
+            setDb(db);
+            db.getConversation(chatId).then((conversation) => { 
+                if (conversation) {
+                    setDocsId(conversation.docsId);
+                }
+            });
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (!db) return;
+        db.getConversation(chatId).then((conversation) => {
+            if (conversation) {
+                setDocsId(conversation.docsId);
+            }
+            setFileUploaded(false);
+        });
+        
+    }, [fileUploaded])
+
+    useEffect(() => { 
         if (!sentMessage) return;
         onSendMessage(sentMessage);
+        console.log("three men walk into a bar", docsId, selectedTab, sentMessage)
         setMessage('');
         setMessages([...messages, { user: sentMessage, bot: "", type: 'message' }]);
-        console.log(llmProvider);
-        if (llmProvider) {
-            generateWithAPI(fetchData, filterMessages(messages), sentMessage, llmProvider);
-        } else {
-            sendMessage(fetchData, user, sentMessage, filterMessages(messages));
-        }
+        get_contexts(docsId, selectedTab, sentMessage).then((context) => {
+            console.log("retrieved contexts", context);
+            if (llmProvider) {
+                generateWithAPI(fetchData, filterMessages(messages), context + sentMessage, llmProvider);
+            } else {
+                sendMessage(fetchData, user, context + sentMessage, filterMessages(messages));
+            }
+        });
     }, [sentMessage]);
 
     useEffect(() => {   
@@ -80,7 +119,7 @@ const SendMessage: React.FC<SendMessageProps> = ({chatId, messages, setMessages,
                     maxRows={10}
                 />
                 <div>
-                    <FileUpload chatId={chatId} setMessages={setMessages} />
+                    <FileUpload chatId={chatId} setMessages={setMessages} setFileUploaded={setFileUploaded}/>
                     <button
                         className="hover:cursor-pointer"
                         onClick={async () => {
