@@ -22,7 +22,7 @@ interface SendMessageProps {
 }
 
 const get_contexts = async (docsIds, selectedTab, message) => {
-    if (selectedTab) docsIds.push(selectedTab.id);
+    if (selectedTab) docsIds.push(selectedTab.id.toString());
     const contexts = await retrieve_contexts(docsIds, message);
     let context = "";
     contexts.forEach((cxt) => { context += cxt + " "});
