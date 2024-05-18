@@ -113,6 +113,3 @@ const Conversation: React.FC<Props> = ({
 
 export default Conversation;
 
-{
-  /* <div>{conversation.id}</div> */
-}

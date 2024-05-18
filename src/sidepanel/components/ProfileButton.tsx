@@ -75,7 +75,7 @@ const ProfileButton: React.FC = () => {
     return (
         user && (
             <React.Fragment>
-                <div onClick={handleClick}>
+                <div onClick={handleClick} className="profile-button">
                     {user.photoUrl ? <Avatar src={user.photoUrl} /> : <Avatar>{user.displayName.charAt(0).toUpperCase()}</Avatar>}
                 </div>
                 <Backdrop open={open} sx={{ zIndex: 1 }}>

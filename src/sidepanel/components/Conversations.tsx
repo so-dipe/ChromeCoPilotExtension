@@ -90,8 +90,11 @@ const Conversations: React.FC = () => {
   const handleRename = async (id: string, title: string) => {
     if (!db) return;
     await db.updateConversationTitle(id, title);
-    const conversations = await db.getConversations();
-    setConversations(conversations);
+    setConversations((prevConvs) => {
+      const conv = prevConvs.find((conv) => conv.id === id);
+      conv.title = title;
+      return [...prevConvs];
+    })
   };
 
   const handleReset = (user) => {

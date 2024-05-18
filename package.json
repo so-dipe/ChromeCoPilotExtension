@@ -26,7 +26,8 @@
     "react-icons": "^5.1.0",
     "react-router-dom": "^6.23.0",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.266",

@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useUserData } from "../hooks/chromeStorageHooks";
-import Logout from "../components/Logout";
-import NewChat from "../components/NewChat";
-import { ConversationsDB } from "../../db/db";
-import Conversations from "../components/Conversations";
 import "tailwindcss/tailwind.css";
-import { FiRefreshCcw } from "react-icons/fi";
 import ProfileSendMessage from "../components/ProfileSendMessage";
 import ProfileButton from "../components/ProfileButton";
 import Recent from "../components/Recent";
 import '../assets/profile-page.css';
 
 const getTime = (hour) => {
-  if (hour >= 12 && hour < 18) {
+  if (hour >= 12 && hour < 17) {
     return "Good Afternoon";
-  } else if (hour >= 18) {
+  } else if (hour >= 17 && hour < 22) {
     return "Good Evening";
+  } else if (hour >= 22 && hour < 3) {
+    return "Late Night Session?";
   } else {
-    return "Good Morning";
+    return "Good Morning!";
   }
 };
 

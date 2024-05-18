@@ -37,8 +37,11 @@ const Recent = () => {
   const handleRename = async (id: string, title: string) => {
     if (!db) return;
     await db.updateConversationTitle(id, title);
-    const conversations = await db.getConversations();
-    setConversations(conversations);
+    setConversations((prevConvs) => {
+      const conv = prevConvs.find((conv) => conv.id === id);
+      conv.title = title;
+      return [...prevConvs];
+    })
   };
 
   const handleSeeMore = () => {
@@ -60,7 +63,7 @@ const Recent = () => {
             <div className='header'>
                 <h2 className="heading lexend-six">Recent</h2>
                 <button className="button" onClick={handleSeeMore}>
-                    <span className="material-symbols-outlined">
+                    <span className="material-symbols-outlined see-more">
                         arrow_forward_ios
                     </span>
                 </button>

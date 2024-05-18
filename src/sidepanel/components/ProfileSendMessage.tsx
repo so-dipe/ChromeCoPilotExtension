@@ -2,15 +2,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../hooks/chromeStorageHooks";
 import '../assets/profile-send-message.css';
+import { v4 as uuidv4 } from 'uuid';
 
 const ProfileSendMessage: React.FC = () => {
   const navigate = useNavigate();
-  const user = useUserData();
   const [message, setMessage] = useState<string>("");
+
   const handleSend = () => {
-    const chatId = user.localId + Date.now();
-    navigate(`/chat/${chatId}/${message}`);
+    const chatId = uuidv4();
+    navigate(`/chat/${chatId}?message=${message}`);
   };
+
+  const handleDisabled = () => {
+    return message === "";
+  }
+  
   return (
     <div className="container-profile-send-message">
       <textarea
@@ -25,6 +31,7 @@ const ProfileSendMessage: React.FC = () => {
       <button
         className="text-blue-700 p-2 hover:text-blue-400 transition-all transition-5"
         onClick={handleSend}
+        disabled={handleDisabled()}
       >
         <span className="material-symbols-outlined">send</span>
       </button>

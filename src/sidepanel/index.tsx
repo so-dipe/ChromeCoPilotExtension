@@ -38,10 +38,10 @@ const router = createHashRouter([
       path: "chat/:chatId/contexts",
       element: <ContextsPage />,
     },
-    {
-      path: "chat/:chatId/:message",
-      element: <ChatPage />
-    },
+    // {
+    //   path: "chat/:chatId/:message",
+    //   element: <ChatPage />
+    // },
     {
       path: "conversations",
       element: <Conversations />
